@@ -9,8 +9,9 @@ namespace Worktree.Data.Entities
         public int TaskItemId { get; set; }
         public TaskItem TaskItem { get; set; } = null!;
 
-        public string OwnerId { get; set; } = string.Empty;
-        public User Owner { get; set; } = null!;
+        // 1:N 
+        public string CreatedById { get; set; } = string.Empty;
+        public User CreatedBy { get; set; } = null!;
 
         [Required]
         [StringLength(2000, MinimumLength = 1)]
@@ -18,6 +19,6 @@ namespace Worktree.Data.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTime? EditeAt { get; set; }
+        public DateTime? EditedAt { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace Worktree.Data.Entities
 
         // 1:N tasks assigned/created by X user and their comments
         public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
-        public ICollection<TaskItem> ReportedTasks { get; set; } = new List<TaskItem>();
+        public ICollection<TaskItem> CreatedTasks { get; set; } = new List<TaskItem>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

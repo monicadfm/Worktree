@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Worktree.Data.Entities
 {
@@ -30,11 +31,13 @@ namespace Worktree.Data.Entities
 
         // who's working on it
         public string? AssigneeId { get; set; }
+        [InverseProperty(nameof(User.AssignedTasks))]
         public User? Assignee { get; set; }
 
         // who created it
-        public string? OwnerId { get; set; } = string.Empty;
-        public User? Owner { get; set; } = null;
+        public string CreatedById { get; set; } = string.Empty;
+        [InverseProperty(nameof(User.CreatedTasks))]
+        public User CreatedBy { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
