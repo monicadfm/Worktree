@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Worktree.Data;
 using Worktree.Data.Entities;
+using Worktree.Helpers;
 
 namespace Worktree
 {
@@ -34,6 +35,10 @@ namespace Worktree
             {
                 cfg.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            services.AddTransient<SeedDb>();
+
+            services.AddScoped<IUserHelper, UserHelper>();
 
             services.AddControllersWithViews();
         }
