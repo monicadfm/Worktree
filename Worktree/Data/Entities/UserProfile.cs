@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Worktree.Data.Entities
 {
     public class UserProfile
     {
         [Key]
+        [ForeignKey(nameof(User))]
         public string UserId { get; set; } = string.Empty;
         public User User { get; set; } = null!;
 
