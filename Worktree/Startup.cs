@@ -40,6 +40,12 @@ namespace Worktree
 
             services.AddScoped<IUserHelper, UserHelper>();
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/NotAuthorized";
+            });
+
             services.AddControllersWithViews();
         }
 
@@ -57,8 +63,6 @@ namespace Worktree
             }
 
             app.UseStatusCodePagesWithReExecute("/error/{0}");
-
-            app.UseHttpsRedirection();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
