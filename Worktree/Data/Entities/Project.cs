@@ -28,5 +28,10 @@ namespace Worktree.Data.Entities
 
         // N:N with User through ProjectMember
         public ICollection<ProjectMember> Members { get; set; } = new List<ProjectMember>();
+
+        // 1:N allows many labels/tasks in a proj
+        public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+        public ICollection<Label> Labels { get; set; } = new List<Label>();
+
     }
 }

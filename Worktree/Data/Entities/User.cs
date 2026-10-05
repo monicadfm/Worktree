@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Query;
 using System.ComponentModel.DataAnnotations;
 
 namespace Worktree.Data.Entities
@@ -22,6 +21,12 @@ namespace Worktree.Data.Entities
         // 1:1 one profile for every user
         public UserProfile? Profile { get; set; }
 
+        // N:N with Project through ProjectMember
         public ICollection<ProjectMember> Memberships { get; set; } = new List<ProjectMember>();
+
+        // 1:N tasks assigned/created by X user and their comments
+        public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
+        public ICollection<TaskItem> ReportedTasks { get; set; } = new List<TaskItem>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }
