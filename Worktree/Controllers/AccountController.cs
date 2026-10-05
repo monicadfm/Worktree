@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Worktree.Data.Entities;
 using Worktree.Helpers;
 using Worktree.Models;
@@ -102,6 +103,100 @@ namespace Worktree.Controllers
             }
 
             return View(model);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ChangeUser()
+        {
+            var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity!.Name!);
+            var model = new ChangeUserViewModel();
+
+            if (user != null)
+            {
+                model.FirstName = user.FirstName;
+                model.LastName = user.LastName;
+
+                if (user.Profile != null)
+                {
+                    model.JobTitle = user.Profile.JobTitle;
+                    model.Bio = user.Profile.Bio;
+                    model.AvatarUrl = user.Profile.AvatarUrl;
+                    model.Theme = user.Profile.Theme;
+                }
+            }
+
+            return View(model);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangeUser(ChangeUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity!.Name!);
+
+                if (user != null)
+                {
+                    user.FirstName = model.FirstName;
+                    user.LastName = model.LastName;
+
+                    if (user.Profile != null)
+                    {
+                        user.Profile.JobTitle = model.JobTitle;
+                        user.Profile.Bio = model.Bio;
+                        user.Profile.AvatarUrl = model.AvatarUrl;
+                        user.Profile.Theme = model.Theme;
+                    }
+
+                    var response = await _userHelper.UpdateUserAsync(user);
+
+                    if (response.Succeeded)
+                    {
+                        ViewBag.UserMessage = "User updated!";
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, response.Errors.FirstOrDefault()!.Description);
+                    }
+                }
+            }
+
+            return View(model);
+        }
+
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+                if (user != null)
+                {
+                    var result = await _userHelper.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("ChangeUser");
+                    }
+                    else
+                    {
+                        this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault()!.Description);
+                    }
+                }
+                else
+                {
+                    this.ModelState.AddModelError(string.Empty, "User not found.");
+                }
+            }
+
+            return this.View(model);
         }
 
         public IActionResult NotAuthorized()

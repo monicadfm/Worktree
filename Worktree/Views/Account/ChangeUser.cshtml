@@ -1,0 +1,63 @@
+﻿@model Worktree.Models.ChangeUserViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<h2>My Profile</h2>
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FirstName" class="form-label"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-warning"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LastName" class="form-label"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-warning"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="JobTitle" class="form-label"></label>
+                <input asp-for="JobTitle" class="form-control" />
+                <span asp-validation-for="JobTitle" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Bio" class="form-label"></label>
+                <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Bio" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AvatarUrl" class="form-label"></label>
+                <input asp-for="AvatarUrl" class="form-control" />
+                <span asp-validation-for="AvatarUrl" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Theme" class="form-label"></label>
+                <select asp-for="Theme" asp-items="Html.GetEnumSelectList<Worktree.Data.Entities.AppTheme>()" class="form-select"></select>
+            </div>
+
+            <div class="mb-3">
+                <input type="submit" value="Update" class="btn btn-primary" />
+                <a asp-action="ChangePassword" class="btn btn-success">Change Password</a>
+            </div>
+
+            <div class="text-success">@ViewBag.UserMessage</div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

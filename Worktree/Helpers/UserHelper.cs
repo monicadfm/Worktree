@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Worktree.Data.Entities;
 using Worktree.Models;
 
@@ -44,6 +45,13 @@ namespace Worktree.Helpers
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await _userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<User?> GetUserWithProfileAsync(string email)
+        {
+            return await _userManager.Users
+                .Include(u => u.Profile)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<bool> IsUserInRoleAsync(User user, string roleName)

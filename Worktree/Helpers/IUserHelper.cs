@@ -23,5 +23,7 @@ namespace Worktree.Helpers
         Task AddUserToRoleAsync(User user, string roleName);
 
         Task<bool> IsUserInRoleAsync(User user, string roleName);
+
+        Task<User?> GetUserWithProfileAsync(string email);
     }
 }
