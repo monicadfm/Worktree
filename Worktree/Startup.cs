@@ -56,6 +56,10 @@ namespace Worktree
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithReExecute("/error/{0}");
+
+            app.UseHttpsRedirection();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
