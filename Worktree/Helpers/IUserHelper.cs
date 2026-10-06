@@ -25,5 +25,9 @@ namespace Worktree.Helpers
         Task<bool> IsUserInRoleAsync(User user, string roleName);
 
         Task<User?> GetUserWithProfileAsync(string email);
+
+        Task<string> GeneratePasswordResetTokenAsync(User user);
+
+        Task<IdentityResult> ResetPasswordAsync(User user, string token, string password);
     }
 }

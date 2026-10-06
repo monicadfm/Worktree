@@ -10,10 +10,12 @@ namespace Worktree.Controllers
     public class AccountController : Controller
     {
         private readonly IUserHelper _userHelper;
+        private readonly IMailHelper _mailHelper;
 
-        public AccountController(IUserHelper userHelper )
+        public AccountController(IUserHelper userHelper, IMailHelper mailHelper)
         {
             _userHelper = userHelper;
+            _mailHelper = mailHelper;
         }
 
         public IActionResult Login()
@@ -197,6 +199,78 @@ namespace Worktree.Controllers
             }
 
             return this.View(model);
+        }
+
+        public IActionResult RecoverPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecoverPassword(RecoverPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "The email doesn't correspond to a registered user.");
+                    return View(model);
+                }
+
+                var myToken = await _userHelper.GeneratePasswordResetTokenAsync(user);
+
+                var link = this.Url.Action(
+                    "ResetPassword",
+                    "Account",
+                    new { token = myToken },
+                    protocol: HttpContext.Request.Scheme);
+
+                Response response = _mailHelper.SendEmail(model.Email, "Worktree Password Reset",
+                    $"<h1>Worktree Password Reset</h1>" +
+                    $"To reset the password click in this link:<br/><br/>" +
+                    $"<a href=\"{link}\">Reset Password</a>");
+
+                if (response.IsSuccess)
+                { 
+                    ViewBag.Message = "The instructions to recover your password have been sent to your email.";
+                    return View();
+                }
+
+                ModelState.AddModelError(string.Empty, "The email couldn't be sent. Please try again later.");
+            }
+
+            return View(model);
+        }
+
+        public IActionResult ResetPassword(string token)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(model.Username);
+                if (user != null)
+                {
+                    var result = await _userHelper.ResetPasswordAsync(user, model.Token, model.Password);
+                    if (result.Succeeded)
+                    {
+                        ViewBag.Message = "Password reset successful.";
+                        return View();
+                    }
+
+                    ViewBag.Message = "Error while resetting the password.";
+                    return View(model);
+                }
+
+                ViewBag.Message = "User not found.";
+            }
+
+            return View(model);
         }
 
         public IActionResult NotAuthorized()
