@@ -1,0 +1,47 @@
+﻿@model Worktree.Data.Entities.Project
+
+@{
+    ViewData["Title"] = "Delete Project";
+    var taskCount = (int)(ViewBag.TaskCount ?? 0);
+}
+
+<h1>Delete Project</h1>
+<hr />
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Key)</dt>
+    <dd class="col-sm-10"><span class="badge bg-dark">@Model.Key</span></dd>
+    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Name)</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+    <dt class="col-sm-2">Tasks</dt>
+    <dd class="col-sm-10">@taskCount</dd>
+</dl>
+
+@if (taskCount > 0)
+{
+    <div class="alert alert-warning">
+        This project has <strong>@taskCount task(s)</strong>, so it can't be deleted.
+        Archive it instead: it will be kept read-only and moved to the end of your list.
+    </div>
+
+    <form asp-action="ToggleArchive" asp-route-id="@Model.Id" method="post" class="d-inline">
+        <button type="submit" class="btn btn-secondary" disabled="@Model.IsArchived">Archive project</button>
+    </form>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-success">Back</a>
+}
+else
+{
+    <h3>Are you sure you want to delete this project?</h3>
+    <p class="text-muted">Its members and labels will also be removed. This can't be undone.</p>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-success">Back</a>
+    </form>
+}

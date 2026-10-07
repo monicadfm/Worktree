@@ -13,5 +13,9 @@ namespace Worktree.Data
         Task<bool> IsOwnerAsync(int projectId, string userId);
 
         Task<bool> KeyExistsAsync(string key, int excludeProjectId = 0);
+
+        Task<int> CountTasksAsync(int projectId);
+
+        Task DeleteProjectAsync(Project project);
     }
 }

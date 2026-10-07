@@ -12,13 +12,43 @@ namespace Worktree.Data
             _context = context;
         }
 
+        public async Task<int> CountTasksAsync(int projectId)
+        {
+            return await _context.Tasks.CountAsync(t => t.ProjectId == projectId);
+        }
+
+        public async Task DeleteProjectAsync(Project project)
+        {
+            var members = await _context.ProjectMembers
+                .Where(m => m.ProjectId == project.Id)
+                .ToListAsync();
+            _context.ProjectMembers.RemoveRange(members);
+
+            var labels = await _context.Labels
+                .Where(l => l.ProjectId == project.Id)
+                .ToListAsync();
+            _context.Labels.RemoveRange(labels);
+
+            var profiles = await _context.UserProfiles
+                .Where(p => p.DefaultProjectId == project.Id)
+                .ToListAsync();
+            foreach (var profile in profiles)
+            {
+                profile.DefaultProjectId = null;
+            }
+
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+        }
+
         public IQueryable<Project> GetAllForUser(string userId)
         {
             return _context.Projects
                 .Include(p => p.Members)
                 .Include(p => p.Tasks)
                 .Where(p => p.Members.Any(m => m.UserId == userId))
-                .OrderBy(p => p.Name);
+                .OrderBy(p => p.IsArchived)
+                .ThenBy(p => p.Name);
         }
 
         public async Task<Project?> GetByIdWithMembersAsync(int id)
