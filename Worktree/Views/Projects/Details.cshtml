@@ -1,0 +1,44 @@
+﻿@model Worktree.Data.Entities.Project
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="mb-3">
+    <span class="badge bg-dark fs-6">@Model.Key</span>
+    <h1 class="d-inline align-middle ms-2">@Model.Name</h1>
+    @if (Model.IsArchived)
+    {
+        <span class="badge bg-secondary align-middle">Archived</span>
+    }
+</div>
+
+<p class="text-muted">@(string.IsNullOrEmpty(Model.Description) ? "No description." : Model.Description)</p>
+<p><small class="text-muted">Created @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</small></p>
+
+<h4 class="mt-4">Members</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Model.Members.OrderBy(m => m.Role))
+        {
+            <tr>
+                <td>@member.User.FullName</td>
+                <td>@member.User.Email</td>
+                <td>
+                    <span class="badge @(member.Role == Worktree.Data.Entities.UserRoles.Owner ? "bg-primary" : "bg-light text-dark")">
+                        @member.Role
+                    </span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-success">Back to List</a>
