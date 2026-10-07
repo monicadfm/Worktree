@@ -41,4 +41,18 @@
     </tbody>
 </table>
 
-<a asp-action="Index" class="btn btn-success">Back to List</a>
+<div class="mt-3">
+    @if (ViewBag.IsOwner == true)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+
+        <form asp-action="ToggleArchive" asp-route-id="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-secondary">
+                @(Model.IsArchived ? "Unarchive" : "Archive")
+            </button>
+        </form>
+
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+    }
+    <a asp-action="Index" class="btn btn-success">Back to List</a>
+</div>
