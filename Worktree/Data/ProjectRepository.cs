@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Worktree.Data.Entities;
 
 namespace Worktree.Data
@@ -120,6 +121,27 @@ namespace Worktree.Data
         {
             _context.ProjectMembers.Update(member);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetComboMembersAsync(int projectId)
+        {
+            var list = await _context.ProjectMembers
+                .Where(m => m.ProjectId == projectId)
+                .OrderBy(m => m.User.FirstName)
+                .Select(m => new SelectListItem
+                {
+                    Text = m.User.FirstName + " " + m.User.LastName,
+                    Value = m.UserId
+                })
+                .ToListAsync();
+
+            list.Insert(0, new SelectListItem
+            {
+                Text = "(Unassigned)",
+                Value = ""
+            });
+
+            return list;
         }
     }
 }

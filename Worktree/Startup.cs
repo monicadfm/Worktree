@@ -42,6 +42,7 @@ namespace Worktree
             services.AddScoped<IMailHelper, MailHelper>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IConverterHelper, ConverterHelper>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
 
             services.ConfigureApplicationCookie(options =>
             {

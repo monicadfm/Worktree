@@ -1,4 +1,5 @@
-﻿using Worktree.Data.Entities;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Worktree.Data.Entities;
 
 namespace Worktree.Data
 {
@@ -27,5 +28,7 @@ namespace Worktree.Data
         Task UpdateMemberAsync(ProjectMember member);
 
         Task RemoveMemberAsync(ProjectMember member);
+
+        Task<IEnumerable<SelectListItem>> GetComboMembersAsync(int projectId);
     }
 }
