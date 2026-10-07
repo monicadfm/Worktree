@@ -28,6 +28,10 @@ namespace Worktree.Data
             modelBuilder.Entity<TaskLabel>()
                 .HasKey(t1 => new { t1.TaskItemId, t1.LabelId });
 
+            modelBuilder.Entity<Project>()
+                .HasIndex(p => p.Key)
+                .IsUnique();
+
             var cascadeFKS = modelBuilder.Model
                 .GetEntityTypes()
                 .SelectMany(t => t.GetForeignKeys())
