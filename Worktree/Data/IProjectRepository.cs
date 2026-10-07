@@ -17,5 +17,15 @@ namespace Worktree.Data
         Task<int> CountTasksAsync(int projectId);
 
         Task DeleteProjectAsync(Project project);
+
+        Task<ProjectMember?> GetMemberAsync(int projectId, string userId);
+
+        Task<int> CountOwnersAsync(int projectId);
+
+        Task AddMemberAsync(ProjectMember member);
+
+        Task UpdateMemberAsync(ProjectMember member);
+
+        Task RemoveMemberAsync(ProjectMember member);
     }
 }

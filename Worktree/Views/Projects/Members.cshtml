@@ -1,0 +1,102 @@
+﻿@model Worktree.Models.ProjectMembersViewModel
+@using Worktree.Data.Entities
+
+@{
+    ViewData["Title"] = "Members - " + Model.Project.Name;
+}
+
+<div class="mb-3">
+    <span class="badge bg-dark fs-6">@Model.Project.Key</span>
+    <h1 class="d-inline align-middle ms-2">Members</h1>
+</div>
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Model.Project.Members.OrderBy(m => m.Role).ThenBy(m => m.User.FirstName))
+        {
+            var isMe = member.UserId == Model.CurrentUserId;
+
+            <tr>
+                <td>
+                    @member.User.FullName
+                    @if (isMe)
+                    {
+                        <span class="text-muted">(you)</span>
+                    }
+                </td>
+                <td>@member.User.Email</td>
+                <td>
+                    <span class="badge @(member.Role == UserRoles.Owner ? "bg-primary" : "bg-light text-dark")">@member.Role</span>
+                </td>
+                <td>@member.JoinedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                <td class="text-end">
+                    @if (Model.IsOwner)
+                    {
+                        <form asp-action="ChangeRole" method="post" class="d-inline">
+                            <input type="hidden" name="projectId" value="@Model.ProjectId" />
+                            <input type="hidden" name="userId" value="@member.UserId" />
+                            <input type="hidden" name="role" value="@(member.Role == UserRoles.Owner ? UserRoles.Member : UserRoles.Owner)" />
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                @(member.Role == UserRoles.Owner ? "Make Member" : "Make Owner")
+                            </button>
+                        </form>
+                    }
+
+                    @if (Model.IsOwner || isMe)
+                    {
+                        <form asp-action="RemoveMember" method="post" class="d-inline"
+                              onsubmit="return confirm('@(isMe ? "Leave this project?" : "Remove " + member.User.FullName + " from the project?")');">
+                            <input type="hidden" name="projectId" value="@Model.ProjectId" />
+                            <input type="hidden" name="userId" value="@member.UserId" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">@(isMe ? "Leave" : "Remove")</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.IsOwner)
+{
+    <h4 class="mt-4">Add member</h4>
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="AddMember" method="post" class="row g-2 align-items-start">
+                <input type="hidden" asp-for="ProjectId" />
+
+                <div class="col-sm-6">
+                    <input asp-for="Email" class="form-control" placeholder="user@email.com" />
+                    <span asp-validation-for="Email" class="text-warning"></span>
+                </div>
+                <div class="col-sm-3">
+                    <select asp-for="Role" asp-items="Html.GetEnumSelectList<UserRoles>()" class="form-select"></select>
+                </div>
+                <div class="col-sm-3">
+                    <button type="submit" class="btn btn-primary w-100">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-action="Details" asp-route-id="@Model.ProjectId" class="btn btn-success">Back to Project</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

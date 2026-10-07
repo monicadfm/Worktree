@@ -12,6 +12,18 @@ namespace Worktree.Data
             _context = context;
         }
 
+        public async Task AddMemberAsync(ProjectMember member)
+        {
+            await _context.ProjectMembers.AddAsync(member);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> CountOwnersAsync(int projectId)
+        {
+            return await _context.ProjectMembers
+                .CountAsync(m => m.ProjectId == projectId && m.Role == UserRoles.Owner);
+        }
+
         public async Task<int> CountTasksAsync(int projectId)
         {
             return await _context.Tasks.CountAsync(t => t.ProjectId == projectId);
@@ -59,6 +71,12 @@ namespace Worktree.Data
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
+        public async Task<ProjectMember?> GetMemberAsync(int projectId, string userId)
+        {
+            return await _context.ProjectMembers
+                .FirstOrDefaultAsync(m => m.ProjectId == projectId && m.UserId == userId);
+        }
+
         public async Task<bool> IsMemberAsync(int projectId, string userId)
         {
             return await _context.ProjectMembers
@@ -75,6 +93,33 @@ namespace Worktree.Data
         {
             return await _context.Projects
                 .AnyAsync(p => p.Key == key && p.Id != excludeProjectId);
+        }
+
+        public async Task RemoveMemberAsync(ProjectMember member)
+        {
+            var tasks = await _context.Tasks
+                .Where(t => t.ProjectId == member.ProjectId && t.AssigneeId == member.UserId)
+                .ToListAsync();
+            foreach (var task in tasks)
+            {
+                task.AssigneeId = null;
+            }
+
+            var profile = await _context.UserProfiles
+                .FirstOrDefaultAsync(p => p.UserId == member.UserId && p.DefaultProjectId == member.ProjectId);
+            if (profile != null)
+            {
+                profile.DefaultProjectId = null;
+            }
+
+            _context.ProjectMembers.Remove(member);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateMemberAsync(ProjectMember member)
+        {
+            _context.ProjectMembers.Update(member);
+            await _context.SaveChangesAsync();
         }
     }
 }

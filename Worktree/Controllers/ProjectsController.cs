@@ -286,5 +286,179 @@ namespace Worktree.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        // GET
+        public async Task<IActionResult> Members(int? id)
+        { 
+            if (id == null)
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(id.Value, user.Id))
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            var model = await BuildMembersViewModelAsync(id.Value, user);
+            if (model == null)
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            return View(model);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddMember(ProjectMembersViewModel model)
+        {
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(model.ProjectId, user.Id))
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            if (!await _projectRepository.IsOwnerAsync(model.ProjectId, user.Id))
+            {
+                return RedirectToAction("NotAuthorized", "Account");
+            }
+
+            if (ModelState.IsValid)
+            {
+                var newMember = await _userHelper.GetUserByEmailAsync(model.Email);
+                if (newMember == null)
+                {
+                    ModelState.AddModelError(nameof(model.Email), "There's no registered user with this email.");
+                }
+                else if (await _projectRepository.IsMemberAsync(model.ProjectId, newMember.Id))
+                {
+                    ModelState.AddModelError(nameof(model.Email), "This user is already a member of the project.");
+                }
+                else 
+                {
+                    await _projectRepository.AddMemberAsync(new ProjectMember
+                    {
+                        ProjectId = model.ProjectId,
+                        UserId = newMember.Id,
+                        Role = model.Role
+                    });
+
+                    return RedirectToAction(nameof(Members), new { id = model.ProjectId });
+                }
+            }
+
+            var page = await BuildMembersViewModelAsync(model.ProjectId, user);
+            if (page == null)
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            page.Email = model.Email;
+            page.Role = model.Role;
+            return View("Members", page);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeRole(int projectId, string userId, UserRoles role)
+        {
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(projectId, user.Id))
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            if (!await _projectRepository.IsOwnerAsync(projectId, user.Id))
+            {
+                return RedirectToAction("NotAuthorized", "Account");
+            }
+
+            var member = await _projectRepository.GetMemberAsync(projectId, userId);
+            if (member == null)
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            if (member.Role == UserRoles.Owner && role == UserRoles.Member
+                && await _projectRepository.CountOwnersAsync(projectId) == 1)
+            {
+                ModelState.AddModelError(string.Empty, "A project must have at least one Owner. Make someone else Owner first.");
+
+                var page = await BuildMembersViewModelAsync(projectId, user);
+                return page == null ? new NotFoundViewResult("ProjectNotFound") : View("Members", page);
+            }
+
+            member.Role = role;
+            await _projectRepository.UpdateMemberAsync(member);
+
+            return RedirectToAction(nameof(Members), new { id = projectId });
+
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveMember(int projectId, string userId)
+        {
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(projectId, user.Id))
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            var isLeaving = userId == user.Id;
+
+            // only Owners can remove other people; anyone can remove themselves (leave)
+            if (!isLeaving && !await _projectRepository.IsOwnerAsync(projectId, user.Id))
+            {
+                return RedirectToAction("NotAuthorized", "Account");
+            }
+
+            var member = await _projectRepository.GetMemberAsync(projectId, userId);
+            if (member == null)
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            if (member.Role == UserRoles.Owner && await _projectRepository.CountOwnersAsync(projectId) == 1)
+            {
+                ModelState.AddModelError(string.Empty, isLeaving
+                    ? "You're the only Owner. Make someone else Owner before leaving."
+                    : "The last Owner can't be removed.");
+
+                var page = await BuildMembersViewModelAsync(projectId, user);
+                return page == null ? new NotFoundViewResult("ProjectNotFound") : View("Members", page);
+            }
+
+            await _projectRepository.RemoveMemberAsync(member);
+
+            if (isLeaving)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction(nameof(Members), new { id = projectId });
+        }
+
+        private async Task<ProjectMembersViewModel?> BuildMembersViewModelAsync(int projectId, User user)
+        {
+            var project = await _projectRepository.GetByIdWithMembersAsync(projectId);
+            if (project == null)
+            {
+                return null;
+            }
+
+            return new ProjectMembersViewModel
+            {
+                ProjectId = project.Id,
+                Project = project,
+                IsOwner = await _projectRepository.IsOwnerAsync(project.Id, user.Id),
+                CurrentUserId = user.Id
+            };
+        }
     }
 }
