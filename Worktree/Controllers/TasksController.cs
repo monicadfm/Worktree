@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Worktree.Data;
 using Worktree.Data.Entities;
 using Worktree.Helpers;
@@ -53,6 +54,103 @@ namespace Worktree.Controllers
 
             ViewBag.Project = project;
             return View(_taskRepository.GetAllForProject(project.Id));
+        }
+
+        // GET
+        public async Task<IActionResult> Board(int? projectId, string? assigneeId, int? labelId, TaskItemPrio? priority)
+        {
+            if (projectId == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var project = await _projectRepository.GetByIdAsync(projectId.Value);
+            if (project == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(project.Id, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var tasks = _taskRepository.GetAllForProject(project.Id);
+
+            if (assigneeId == "none")
+            {
+                tasks = tasks.Where(t => t.AssigneeId == null);
+            }
+            else if (!string.IsNullOrEmpty(assigneeId))
+            {
+                tasks = tasks.Where(t => t.AssigneeId == assigneeId);
+            }
+
+            if (labelId.HasValue)
+            {
+                tasks = tasks.Where(t => t.TaskLabels.Any(tl => tl.LabelId == labelId.Value));
+            }
+
+            if (priority.HasValue)
+            {
+                tasks = tasks.Where(t => t.Priority == priority.Value);
+            }
+
+            var members = (await _projectRepository.GetComboMembersAsync(project.Id)).Skip(1).ToList();
+            members.Insert(0, new SelectListItem { Text = "Unassigned", Value = "none" });
+            members.Insert(0, new SelectListItem { Text = "All assignees", Value = "" });
+
+            var labels = await _labelRepository.GetAllForProject(project.Id)
+                .Select(l => new SelectListItem { Text = l.Name, Value = l.Id.ToString() })
+                .ToListAsync();
+            labels.Insert(0, new SelectListItem { Text = "All labels", Value = "" });
+
+            var model = new BoardViewModel
+            {
+                Project = project,
+                Tasks = await tasks.ToListAsync(),
+                AssigneeId = assigneeId,
+                LabelId = labelId,
+                Priority = priority,
+                Members = members,
+                Labels = labels
+            };
+
+            return View(model);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Move(int id, TaskItemStatus status, string? returnUrl)
+        {
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var project = await _projectRepository.GetByIdAsync(task.ProjectId);
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (project == null || user == null || !await _projectRepository.IsMemberAsync(project.Id, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (!project.IsArchived && Enum.IsDefined(typeof(TaskItemStatus), status))
+            {
+                task.Status = status;
+                task.UpdatedAt = DateTime.UtcNow;
+                await _taskRepository.UpdateAsync(task);
+            }
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            return RedirectToAction(nameof(Board), new { projectId = task.ProjectId });
         }
 
         // GET

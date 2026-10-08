@@ -36,6 +36,8 @@
         {
             <a asp-action="Create" asp-route-projectId="@project.Id" class="btn btn-primary">New Task</a>
         }
+        <a asp-action="Board" asp-route-projectId="@project.Id" class="btn btn-outline-secondary">Board view</a>
+
         <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-success">Back to Project</a>
     </div>
 </div>
