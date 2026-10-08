@@ -1,0 +1,331 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Worktree.Data;
+using Worktree.Helpers;
+using Worktree.Models;
+
+namespace Worktree.Controllers
+{
+    [Authorize]
+    public class TasksController : Controller
+    {
+        private readonly ITaskRepository _taskRepository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IUserHelper _userHelper;
+        private readonly IConverterHelper _converterHelper;
+
+        public TasksController(
+            ITaskRepository taskRepository,
+            IProjectRepository projectRepository,
+            IUserHelper userHelper,
+            IConverterHelper converterHelper)
+        {
+            _taskRepository = taskRepository;
+            _projectRepository = projectRepository;
+            _userHelper = userHelper;
+            _converterHelper = converterHelper;
+        }
+
+        // GET
+        public async Task<IActionResult> Index(int? projectId)
+        {
+            if (projectId == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var project = await _projectRepository.GetByIdAsync(projectId.Value);
+            if (project == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(project.Id, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            ViewBag.Project = project;
+            return View(_taskRepository.GetAllForProject(project.Id));
+        }
+
+        // GET
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var task = await _taskRepository.GetByIdWithDetailsAsync(id.Value);
+            if (task == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(task.ProjectId, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            ViewBag.CanDelete = task.CreatedById == user.Id
+                || await _projectRepository.IsOwnerAsync(task.ProjectId, user.Id);
+
+            return View(task);
+        }
+
+        // GET
+        public async Task<IActionResult> Create(int? projectId)
+        {
+            if (projectId == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var project = await _projectRepository.GetByIdAsync(projectId.Value);
+            if (project == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(project.Id, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (project.IsArchived)
+            {
+                return RedirectToAction(nameof(Index), new { projectId = project.Id });
+            }
+
+            var model = new TaskViewModel
+            {
+                ProjectId = project.Id,
+                ProjectKey = project.Key,
+                Members = await _projectRepository.GetComboMembersAsync(project.Id)
+            };
+
+            return View(model);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(TaskViewModel model)
+        {
+            var project = await _projectRepository.GetByIdAsync(model.ProjectId);
+            if (project == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(project.Id, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (project.IsArchived)
+            {
+                return RedirectToAction(nameof(Index), new { projectId = project.Id });
+            }
+
+            if (!string.IsNullOrEmpty(model.AssigneeId)
+                && !await _projectRepository.IsMemberAsync(project.Id, model.AssigneeId))
+            {
+                ModelState.AddModelError(nameof(model.AssigneeId), "The assignee must be a member of the project.");
+            }
+
+            if (model.DueDate.HasValue && model.DueDate.Value.Date < DateTime.Today)
+            {
+                ModelState.AddModelError(nameof(model.DueDate), "The due date can't be in the past.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                var task = _converterHelper.ToTaskItem(model, true);
+                task.CreatedById = user.Id;
+
+                await _taskRepository.CreateTaskAsync(task);
+                return RedirectToAction(nameof(Details), new { id = task.Id });
+            }
+
+            model.ProjectKey = project.Key;
+            model.Members = await _projectRepository.GetComboMembersAsync(project.Id);
+            return View(model);
+        }
+
+        // GET
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var task = await _taskRepository.GetByIdWithDetailsAsync(id.Value);
+            if (task == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(task.ProjectId, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (task.Project.IsArchived)
+            {
+                return RedirectToAction(nameof(Details), new { id = task.Id });
+            }
+
+            var model = _converterHelper.ToTaskViewModel(task);
+            model.ProjectKey = task.Project.Key;
+            model.Members = await _projectRepository.GetComboMembersAsync(task.ProjectId);
+
+            ViewBag.Number = task.Number;
+            return View(model);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(TaskViewModel model)
+        {
+            var task = await _taskRepository.GetByIdWithDetailsAsync(model.Id);
+            if (task == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(task.ProjectId, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (task.Project.IsArchived)
+            {
+                return RedirectToAction(nameof(Details), new { id = task.Id });
+            }
+
+            if (!string.IsNullOrEmpty(model.AssigneeId)
+                && !await _projectRepository.IsMemberAsync(task.ProjectId, model.AssigneeId))
+            {
+                ModelState.AddModelError(nameof(model.AssigneeId), "The assignee must be a member of the project.");
+            }
+
+            var dueDateChanged = model.DueDate?.Date != task.DueDate?.Date;
+            if (dueDateChanged && model.DueDate.HasValue && model.DueDate.Value.Date < DateTime.Today)
+            {
+                ModelState.AddModelError(nameof(model.DueDate), "The due date can't be in the past.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                task.Title = model.Title;
+                task.Description = model.Description;
+                task.Status = model.Status;
+                task.Priority = model.Priority;
+                task.DueDate = model.DueDate;
+                task.AssigneeId = model.AssigneeId;
+                task.UpdatedAt = DateTime.UtcNow;
+
+                try
+                {
+                    await _taskRepository.UpdateAsync(task);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _taskRepository.ExistAsync(task.Id))
+                    {
+                        return new NotFoundViewResult("TaskNotFound");
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return RedirectToAction(nameof(Details), new { id = task.Id });
+            }
+
+            model.ProjectId = task.ProjectId;
+            model.ProjectKey = task.Project.Key;
+            model.Members = await _projectRepository.GetComboMembersAsync(task.ProjectId);
+            ViewBag.Number = task.Number;
+            return View(model);
+        }
+
+        // GET
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var task = await _taskRepository.GetByIdWithDetailsAsync(id.Value);
+            if (task == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(task.ProjectId, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (task.CreatedById != user.Id && !await _projectRepository.IsOwnerAsync(task.ProjectId, user.Id))
+            {
+                return RedirectToAction("NotAuthorized", "Account");
+            }
+
+            if (task.Project.IsArchived)
+            {
+                return RedirectToAction(nameof(Details), new { id = task.Id });
+            }
+
+            return View(task);
+        }
+
+        // POST
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var task = await _taskRepository.GetByIdWithDetailsAsync(id);
+            if (task == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(task.ProjectId, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (task.CreatedById != user.Id && !await _projectRepository.IsOwnerAsync(task.ProjectId, user.Id))
+            {
+                return RedirectToAction("NotAuthorized", "Account");
+            }
+
+            if (task.Project.IsArchived)
+            {
+                return RedirectToAction(nameof(Details), new { id = task.Id });
+            }
+
+            var projectId = task.ProjectId;
+            await _taskRepository.DeleteTaskAsync(task);
+
+            return RedirectToAction(nameof(Index), new { projectId });
+        }
+    }
+}

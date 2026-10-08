@@ -1,0 +1,30 @@
+﻿@model Worktree.Models.TaskViewModel
+
+@{
+    ViewData["Title"] = "Edit Task";
+}
+
+<h1><span class="badge bg-dark align-middle">@Model.ProjectKey-@ViewBag.Number</span> Edit Task</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <partial name="_TaskForm" />
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-success">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

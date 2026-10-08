@@ -1,0 +1,89 @@
+﻿@model IEnumerable<Worktree.Data.Entities.TaskItem>
+
+@{
+    var project = (Project)ViewBag.Project;
+    ViewData["Title"] = project.Name + " - Tasks";
+}
+
+@functions {
+    string StatusBadge(TaskItemStatus s) => s switch
+    {
+        TaskItemStatus.ToDo => "bg-secondary",
+        TaskItemStatus.InProgress => "bg-primary",
+        TaskItemStatus.InReview => "bg-warning text-dark",
+        _ => "bg-success"
+    };
+
+    string PriorityBadge(TaskItemPrio p) => p switch
+    {
+        TaskItemPrio.Low => "bg-light text-dark",
+        TaskItemPrio.Medium => "bg-info text-dark",
+        TaskItemPrio.High => "bg-warning text-dark",
+        _ => "bg-danger"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>
+        <span class="badge bg-dark align-middle">@project.Key</span> Tasks
+        @if (project.IsArchived)
+        {
+            <span class="badge bg-secondary align-middle fs-6">Archived</span>
+        }
+    </h1>
+    <div>
+        @if (!project.IsArchived)
+        {
+            <a asp-action="Create" asp-route-projectId="@project.Id" class="btn btn-primary">New Task</a>
+        }
+        <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-success">Back to Project</a>
+    </div>
+</div>
+
+@if (project.IsArchived)
+{
+    <div class="alert alert-secondary">This project is archived. Tasks are read-only.</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted py-5">
+        <p>No tasks yet.</p>
+    </div>
+}
+else
+{
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Assignee</th>
+                <th>Due</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var overdue = item.DueDate.HasValue && item.DueDate.Value.Date < DateTime.Today && item.Status != TaskItemStatus.Done;
+
+                <tr>
+                    <td class="text-muted text-nowrap">@project.Key-@item.Number</td>
+                    <td>@item.Title</td>
+                    <td><span class="badge @StatusBadge(item.Status)">@item.Status.GetDisplayName()</span></td>
+                    <td><span class="badge @PriorityBadge(item.Priority)">@item.Priority</span></td>
+                    <td>@(item.Assignee?.FullName ?? "—")</td>
+                    <td class="@(overdue ? "text-danger fw-bold" : "")">
+                        @(item.DueDate?.ToString("dd/MM/yyyy") ?? "—")
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
