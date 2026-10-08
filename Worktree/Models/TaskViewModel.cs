@@ -35,5 +35,11 @@ namespace Worktree.Models
 
         [ValidateNever]
         public IEnumerable<SelectListItem> Members { get; set; } = new List<SelectListItem>();
+
+        [Display(Name = "Labels")]
+        public List<int> SelectedLabelIds { get; set; } = new List<int>();
+
+        [ValidateNever]
+        public IEnumerable<Label> AvailableLabels { get; set; } = new List<Label>();
     }
 }

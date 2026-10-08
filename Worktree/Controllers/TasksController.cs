@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Worktree.Data;
+using Worktree.Data.Entities;
 using Worktree.Helpers;
 using Worktree.Models;
 
@@ -14,17 +15,20 @@ namespace Worktree.Controllers
         private readonly IProjectRepository _projectRepository;
         private readonly IUserHelper _userHelper;
         private readonly IConverterHelper _converterHelper;
+        private readonly ILabelRepository _labelRepository;
 
         public TasksController(
             ITaskRepository taskRepository,
             IProjectRepository projectRepository,
             IUserHelper userHelper,
-            IConverterHelper converterHelper)
+            IConverterHelper converterHelper,
+            ILabelRepository labelRepository)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _userHelper = userHelper;
             _converterHelper = converterHelper;
+            _labelRepository = labelRepository;
         }
 
         // GET
@@ -105,9 +109,9 @@ namespace Worktree.Controllers
             var model = new TaskViewModel
             {
                 ProjectId = project.Id,
-                ProjectKey = project.Key,
-                Members = await _projectRepository.GetComboMembersAsync(project.Id)
+                ProjectKey = project.Key
             };
+            await FillListsAsync(model, project.Id);
 
             return View(model);
         }
@@ -150,12 +154,21 @@ namespace Worktree.Controllers
                 var task = _converterHelper.ToTaskItem(model, true);
                 task.CreatedById = user.Id;
 
+                var validLabelIds = await _labelRepository.GetAllForProject(project.Id)
+                    .Select(l => l.Id)
+                    .ToListAsync();
+
+                foreach (var labelId in model.SelectedLabelIds.Where(validLabelIds.Contains).Distinct())
+                {
+                    task.TaskLabels.Add(new TaskLabel { LabelId = labelId });
+                }
+
                 await _taskRepository.CreateTaskAsync(task);
                 return RedirectToAction(nameof(Details), new { id = task.Id });
             }
 
             model.ProjectKey = project.Key;
-            model.Members = await _projectRepository.GetComboMembersAsync(project.Id);
+            await FillListsAsync(model, project.Id);
             return View(model);
         }
 
@@ -186,7 +199,7 @@ namespace Worktree.Controllers
 
             var model = _converterHelper.ToTaskViewModel(task);
             model.ProjectKey = task.Project.Key;
-            model.Members = await _projectRepository.GetComboMembersAsync(task.ProjectId);
+            await FillListsAsync(model, task.ProjectId);
 
             ViewBag.Number = task.Number;
             return View(model);
@@ -252,12 +265,19 @@ namespace Worktree.Controllers
                     }
                 }
 
+                var validLabelIds = await _labelRepository.GetAllForProject(task.ProjectId)
+                    .Select(l => l.Id)
+                    .ToListAsync();
+
+                await _taskRepository.SetLabelsAsync(task,
+                    model.SelectedLabelIds.Where(validLabelIds.Contains).Distinct().ToList());
+
                 return RedirectToAction(nameof(Details), new { id = task.Id });
             }
 
             model.ProjectId = task.ProjectId;
             model.ProjectKey = task.Project.Key;
-            model.Members = await _projectRepository.GetComboMembersAsync(task.ProjectId);
+            await FillListsAsync(model, task.ProjectId);
             ViewBag.Number = task.Number;
             return View(model);
         }
@@ -326,6 +346,12 @@ namespace Worktree.Controllers
             await _taskRepository.DeleteTaskAsync(task);
 
             return RedirectToAction(nameof(Index), new { projectId });
+        }
+
+        private async Task FillListsAsync(TaskViewModel model, int projectId)
+        {
+            model.Members = await _projectRepository.GetComboMembersAsync(projectId);
+            model.AvailableLabels = await _labelRepository.GetAllForProject(projectId).ToListAsync();
         }
     }
 }

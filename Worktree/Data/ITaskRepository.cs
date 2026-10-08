@@ -11,5 +11,7 @@ namespace Worktree.Data
         Task CreateTaskAsync(TaskItem task);
 
         Task DeleteTaskAsync(TaskItem task);
+
+        Task SetLabelsAsync(TaskItem task, IEnumerable<int> labelIds);
     }
 }

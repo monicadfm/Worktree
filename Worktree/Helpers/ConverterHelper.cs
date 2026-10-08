@@ -66,8 +66,10 @@ namespace Worktree.Helpers
 
         public TaskViewModel ToTaskViewModel(TaskItem task)
         {
+
             return new TaskViewModel
             {
+                SelectedLabelIds = task.TaskLabels.Select(tl => tl.LabelId).ToList(),
                 Id = task.Id,
                 ProjectId = task.ProjectId,
                 Title = task.Title,
@@ -77,6 +79,7 @@ namespace Worktree.Helpers
                 DueDate = task.DueDate,
                 AssigneeId = task.AssigneeId
             };
+
         }
     }
 }

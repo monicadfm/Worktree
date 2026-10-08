@@ -16,6 +16,8 @@ namespace Worktree.Data
         {
             return _context.Tasks
                 .Include(t => t.Assignee)
+                .Include(t => t.TaskLabels)
+                .ThenInclude(tl => tl.Label)
                 .Where(t => t.ProjectId == projectId)
                 .OrderBy(t => t.Status)
                 .ThenByDescending(t => t.Priority)
@@ -60,6 +62,28 @@ namespace Worktree.Data
             _context.TaskLabels.RemoveRange(taskLabels);
 
             _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SetLabelsAsync(TaskItem task, IEnumerable<int> labelIds)
+        {
+            var current = await _context.TaskLabels
+                .Where(tl => tl.TaskItemId == task.Id)
+                .ToListAsync();
+
+            var toRemove = current.Where(tl => !labelIds.Contains(tl.LabelId)).ToList();
+            _context.TaskLabels.RemoveRange(toRemove);
+
+            var toAdd = labelIds.Where(id => !current.Any(tl => tl.LabelId == id));
+            foreach (var labelId in toAdd)
+            {
+                _context.TaskLabels.Add(new TaskLabel
+                {
+                    TaskItemId = task.Id,
+                    LabelId = labelId
+                });
+            }
+
             await _context.SaveChangesAsync();
         }
     }
