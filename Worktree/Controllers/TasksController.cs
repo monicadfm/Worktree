@@ -78,6 +78,8 @@ namespace Worktree.Controllers
             ViewBag.CanDelete = task.CreatedById == user.Id
                 || await _projectRepository.IsOwnerAsync(task.ProjectId, user.Id);
 
+            ViewBag.CurrentUserId = user.Id;
+
             return View(task);
         }
 

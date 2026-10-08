@@ -32,6 +32,8 @@ namespace Worktree.Data
                 .Include(t => t.CreatedBy)
                 .Include(t => t.TaskLabels)
                 .ThenInclude(tl => tl.Label)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.CreatedBy)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

@@ -44,6 +44,7 @@ namespace Worktree
             services.AddScoped<IConverterHelper, ConverterHelper>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<ILabelRepository, LabelRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
 
             services.ConfigureApplicationCookie(options =>
             {

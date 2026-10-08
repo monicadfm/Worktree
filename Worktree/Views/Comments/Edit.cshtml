@@ -1,0 +1,35 @@
+﻿@model Worktree.Models.CommentViewModel
+
+@{
+    ViewData["Title"] = "Edit Comment";
+}
+
+<h1><span class="badge bg-dark align-middle">@ViewBag.TaskCode</span> Edit Comment</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="TaskItemId" />
+
+            <div class="mb-3">
+                <label asp-for="Body" class="form-label"></label>
+                <textarea asp-for="Body" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Body" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-controller="Tasks" asp-action="Details" asp-route-id="@Model.TaskItemId" class="btn btn-success">Back to Task</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
