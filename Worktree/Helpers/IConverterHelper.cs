@@ -12,5 +12,9 @@ namespace Worktree.Helpers
         TaskItem ToTaskItem(TaskViewModel model, bool isNew);
 
         TaskViewModel ToTaskViewModel(TaskItem task);
+
+        Label ToLabel(LabelViewModel model, bool isNew);
+
+        LabelViewModel ToLabelViewModel(Label label);
     }
 }

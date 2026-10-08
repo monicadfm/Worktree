@@ -1,0 +1,15 @@
+﻿@model Worktree.Models.LabelViewModel
+
+<input type="hidden" asp-for="ProjectId" />
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" maxlength="30" placeholder="e.g. backend" />
+    <span asp-validation-for="Name" class="text-warning"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Color" class="form-label"></label>
+    <input asp-for="Color" type="color" class="form-control form-control-color" />
+    <span asp-validation-for="Color" class="text-warning"></span>
+</div>

@@ -43,6 +43,7 @@ namespace Worktree
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IConverterHelper, ConverterHelper>();
             services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<ILabelRepository, LabelRepository>();
 
             services.ConfigureApplicationCookie(options =>
             {

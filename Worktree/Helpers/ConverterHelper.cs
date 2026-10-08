@@ -5,6 +5,28 @@ namespace Worktree.Helpers
 {
     public class ConverterHelper : IConverterHelper
     {
+        public Label ToLabel(LabelViewModel model, bool isNew)
+        {
+            return new Label
+            {
+                Id = isNew ? 0 : model.Id,
+                ProjectId = model.ProjectId,
+                Name = model.Name.Trim(),
+                Color = model.Color.ToUpper()
+            };
+        }
+
+        public LabelViewModel ToLabelViewModel(Label label)
+        {
+            return new LabelViewModel
+            {
+                Id = label.Id,
+                ProjectId = label.ProjectId,
+                Name = label.Name,
+                Color = label.Color
+            };
+        }
+
         public Project ToProject(ProjectViewModel model, bool isNew)
         {
             return new Project

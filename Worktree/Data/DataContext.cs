@@ -36,6 +36,10 @@ namespace Worktree.Data
                 .HasIndex(t => new { t.ProjectId, t.Number })
                 .IsUnique();
 
+            modelBuilder.Entity<Label>()
+                .HasIndex(l => new { l.ProjectId, l.Name })
+                .IsUnique();
+
             var cascadeFKS = modelBuilder.Model
                 .GetEntityTypes()
                 .SelectMany(t => t.GetForeignKeys())
