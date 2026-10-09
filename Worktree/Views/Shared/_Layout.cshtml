@@ -2,6 +2,9 @@
 @{
     var theme = "light";
     var displayName = this.User.Identity?.Name ?? string.Empty;
+    var initials = string.Empty;
+    string? avatarUrl = null;
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
 
     if (this.User.Identity!.IsAuthenticated)
     {
@@ -9,6 +12,19 @@
         if (currentUser != null)
         {
             displayName = currentUser.FullName;
+            avatarUrl = currentUser.Profile?.AvatarUrl;
+
+            if (!string.IsNullOrEmpty(currentUser.FirstName))
+            {
+                initials += currentUser.FirstName[0];
+            }
+
+            if (!string.IsNullOrEmpty(currentUser.LastName))
+            {
+                initials += currentUser.LastName[0];
+            }
+
+            initials = initials.ToUpper();
 
             if (currentUser.Profile?.Theme == Worktree.Data.Entities.AppTheme.Dark)
             {
@@ -33,42 +49,58 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-body-tertiary border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Worktree</a>
+        <nav class="navbar navbar-expand-sm topbar mb-4">
+            <div class="container">
+                <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="logo-tile">
+                        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                            <circle cx="4" cy="3.5" r="1.5" />
+                            <circle cx="4" cy="12.5" r="1.5" />
+                            <circle cx="12" cy="5" r="1.5" />
+                            <path d="M4 5v6M12 6.5c0 3-4 3-6.5 4.5" />
+                        </svg>
+                    </span>
+                    Worktree
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 ms-sm-4">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @(controller == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @if (this.User.Identity!.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a>
+                                <a class="nav-link @(controller == "Projects" || controller == "Tasks" ? "active" : "")" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav align-items-sm-center">
                         @if (this.User.Identity!.IsAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle link-body-emphasis" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @if (!string.IsNullOrEmpty(avatarUrl))
+                                    {
+                                        <img src="@avatarUrl" alt="" class="avatar" referrerpolicy="no-referrer" />
+                                    }
+                                    else
+                                    {
+                                        <span class="avatar">@initials</span>
+                                    }
                                     @displayName
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><h6 class="dropdown-header">@this.User.Identity.Name</h6></li>
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ChangeUser">My Profile</a></li>
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ChangePassword">Change Password</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a></li>
                                 </ul>
+                            </li>
+                            <li class="nav-item ms-sm-2">
+                                <a class="btn btn-sm btn-line" asp-area="" asp-controller="Account" asp-action="Logout">Sign out</a>
                             </li>
                         }
                         else
@@ -76,8 +108,8 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                            <li class="nav-item ms-sm-2">
+                                <a class="btn btn-sm btn-primary" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
                     </ul>

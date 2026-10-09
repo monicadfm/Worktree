@@ -94,58 +94,140 @@ a:hover {
     border-color: var(--blue-dark);
 }
 
+.task-key {
+    font-family: var(--mono-font);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 .btn-board {
-  --bs-btn-color: #fff;
-  --bs-btn-bg: #0a58ca;
-  --bs-btn-border-color: #0a58ca;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #084298;
-  --bs-btn-hover-border-color: #084298;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #084298;
-  --bs-btn-active-border-color: #084298;
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #0a58ca;
+    --bs-btn-border-color: #0a58ca;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #084298;
+    --bs-btn-hover-border-color: #084298;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #084298;
+    --bs-btn-active-border-color: #084298;
 }
 
 .btn-google {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: #fff;
-  color: #1f1f1f;
-  border: 1px solid #d0d0d0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #fff;
+    color: #1f1f1f;
+    border: 1px solid #d0d0d0;
 }
 
 .btn-google:hover {
-  background-color: #f2f2f2;
-  color: #1f1f1f;
-  border-color: #c0c0c0;
+    background-color: #f2f2f2;
+    color: #1f1f1f;
+    border-color: #c0c0c0;
 }
 
 .google-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
+
+.topbar {
+    background-color: var(--card);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--font);
+    text-decoration: none;
+}
+
+.logo:hover {
+    color: var(--font);
+}
+
+.logo-tile {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    background-color: var(--font);
+    color: var(--card);
+}
+
+.topbar .navbar-nav {
+    gap: 4px;
+}
+
+.topbar .nav-link {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    color: var(--font-sec);
+}
+
+    .topbar .nav-link:hover {
+        color: var(--font);
+    }
+
+    .topbar .nav-link.active {
+        background-color: var(--blue-light);
+        color: var(--blue-dark);
+    }
+
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--blue);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    object-fit: cover;
+}
+
+.btn-line {
+    border: 1px solid var(--border-strong);
+    background-color: var(--card);
+    color: var(--font);
+    font-weight: 500;
+}
+
+    .btn-line:hover {
+        border-color: var(--border-strong);
+        background-color: var(--page);
+        color: var(--font);
+    }
