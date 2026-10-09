@@ -13,5 +13,9 @@ namespace Worktree.Data
         Task DeleteTaskAsync(TaskItem task);
 
         Task SetLabelsAsync(TaskItem task, IEnumerable<int> labelIds);
+
+        IQueryable<TaskItem> GetAssignedToUser(string userId);
+
+        IQueryable<TaskItem> GetOverdueForUser(string userId);
     }
 }

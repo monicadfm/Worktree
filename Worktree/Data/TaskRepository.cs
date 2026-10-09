@@ -88,5 +88,34 @@ namespace Worktree.Data
 
             await _context.SaveChangesAsync();
         }
+
+        public IQueryable<TaskItem> GetAssignedToUser(string userId)
+        {
+            return _context.Tasks
+                .AsNoTracking()
+                .Include(t => t.Project)
+                .Where(t => t.AssigneeId == userId
+                    && t.Status != TaskItemStatus.Done
+                    && !t.Project.IsArchived)
+                .OrderBy(t => t.DueDate == null)
+                .ThenBy(t => t.DueDate)
+                .ThenByDescending(t => t.Priority);
+        }
+
+        public IQueryable<TaskItem> GetOverdueForUser(string userId)
+        {
+            var today = DateTime.Today;
+
+            return _context.Tasks
+                .AsNoTracking()
+                .Include(t => t.Project)
+                .Include(t => t.Assignee)
+                .Where(t => t.Project.Members.Any(m => m.UserId == userId)
+                    && !t.Project.IsArchived
+                    && t.Status != TaskItemStatus.Done
+                    && t.DueDate != null
+                    && t.DueDate < today)
+                .OrderBy(t => t.DueDate);
+        }
     }
 }
