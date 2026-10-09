@@ -9,7 +9,9 @@ namespace Worktree.Models
         public string Username { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(6)]
+        [MinLength(8)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$",
+        ErrorMessage = "The password must have an uppercase letter, a lowercase letter, a number and a symbol.")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 

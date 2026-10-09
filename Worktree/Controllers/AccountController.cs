@@ -80,9 +80,13 @@ namespace Worktree.Controllers
                     };
 
                     var result = await _userHelper.AddUserAsync(user, model.Password);
-                    if (result != IdentityResult.Success)
+                    if (!result.Succeeded)
                     {
-                        ModelState.AddModelError(string.Empty, "The user couldn't be created.");
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+
                         return View(model);
                     }
 

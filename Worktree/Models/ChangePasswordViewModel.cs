@@ -10,7 +10,9 @@ namespace Worktree.Models
         public string OldPassword { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(6)]
+        [MinLength(8)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$",
+        ErrorMessage = "The password must have an uppercase letter, a lowercase letter, a number and a symbol.")]
         [DataType(DataType.Password)]
         [Display(Name = "New Password")]
         public string NewPassword { get; set; } = string.Empty;

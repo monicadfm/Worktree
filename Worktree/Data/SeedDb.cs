@@ -63,7 +63,7 @@ namespace Worktree.Data
                     Profile = new UserProfile()
                 };
 
-                var result = await _userHelper.AddUserAsync(user, "123456");
+                var result = await _userHelper.AddUserAsync(user, "Teste123!");
                 if (result != IdentityResult.Success)
                 {
                     throw new InvalidOperationException("Could not create the user in seeder");

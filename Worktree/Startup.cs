@@ -21,12 +21,12 @@ namespace Worktree
             services.AddIdentity<User, IdentityRole>(cfg =>
             {
                 cfg.User.RequireUniqueEmail = true;
-                cfg.Password.RequireDigit = false;
-                cfg.Password.RequiredUniqueChars = 0;
-                cfg.Password.RequireUppercase = false;
-                cfg.Password.RequireLowercase = false;
-                cfg.Password.RequireNonAlphanumeric = false;
-                cfg.Password.RequiredLength = 6;
+                cfg.Password.RequireDigit = true;
+                cfg.Password.RequiredUniqueChars = 1;
+                cfg.Password.RequireUppercase = true;
+                cfg.Password.RequireLowercase = true;
+                cfg.Password.RequireNonAlphanumeric = true;
+                cfg.Password.RequiredLength = 8;
             })
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<DataContext>();
