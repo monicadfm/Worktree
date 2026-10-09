@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Worktree.Data.Entities;
 using Worktree.Models;
 
@@ -29,5 +30,19 @@ namespace Worktree.Helpers
         Task<string> GeneratePasswordResetTokenAsync(User user);
 
         Task<IdentityResult> ResetPasswordAsync(User user, string token, string password);
+
+        Task<IdentityResult> AddUserAsync(User user);
+
+        Task<IEnumerable<AuthenticationScheme>> GetExternalLoginsAsync();
+
+        AuthenticationProperties ConfigureExternalLogin(string provider, string redirectUrl);
+
+        Task<ExternalLoginInfo?> GetExternalLoginInfoAsync();
+
+        Task<SignInResult> ExternalLoginSignInAsync(ExternalLoginInfo info);
+
+        Task<IdentityResult> AddLoginAsync(User user, ExternalLoginInfo info);
+
+        Task SignInAsync(User user);
     }
 }

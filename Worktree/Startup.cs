@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Worktree.Data;
 using Worktree.Data.Entities;
@@ -15,7 +16,6 @@ namespace Worktree
 
         public IConfiguration Configuration { get; }
 
-        // dependency injection
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddIdentity<User, IdentityRole>(cfg =>
@@ -30,6 +30,29 @@ namespace Worktree
             })
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<DataContext>();
+
+            var googleClientId = this.Configuration["Authentication:Google:ClientId"];
+            var googleClientSecret = this.Configuration["Authentication:Google:ClientSecret"];
+
+            if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+            {
+                services.AddAuthentication()
+                    .AddGoogle(options =>
+                    {
+                        options.ClientId = googleClientId;
+                        options.ClientSecret = googleClientSecret;
+
+                        options.ClaimActions.MapJsonKey("urn:google:picture", "picture");
+
+                        options.AccessDeniedPath = "/Account/Login";
+                        options.Events.OnRemoteFailure = context =>
+                        {
+                            context.Response.Redirect("/Account/Login");
+                            context.HandleResponse();
+                            return Task.CompletedTask;
+                        };
+                    });
+            }
 
             services.AddDbContext<DataContext>(cfg =>
             {
@@ -55,7 +78,6 @@ namespace Worktree
             services.AddControllersWithViews();
         }
 
-        // request pipeline
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

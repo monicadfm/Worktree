@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Worktree.Data.Entities;
 using Worktree.Models;
@@ -82,6 +83,41 @@ namespace Worktree.Helpers
         public async Task<IdentityResult> UpdateUserAsync(User user)
         {
             return await _userManager.UpdateAsync(user);
+        }
+
+        public async Task<IdentityResult> AddUserAsync(User user)
+        {
+            return await _userManager.CreateAsync(user);
+        }
+
+        public async Task<IEnumerable<AuthenticationScheme>> GetExternalLoginsAsync()
+        {
+            return await _signInManager.GetExternalAuthenticationSchemesAsync();
+        }
+
+        public AuthenticationProperties ConfigureExternalLogin(string provider, string redirectUrl)
+        {
+            return _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        }
+
+        public async Task<ExternalLoginInfo?> GetExternalLoginInfoAsync()
+        {
+            return await _signInManager.GetExternalLoginInfoAsync();
+        }
+
+        public async Task<SignInResult> ExternalLoginSignInAsync(ExternalLoginInfo info)
+        {
+            return await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+        }
+
+        public async Task<IdentityResult> AddLoginAsync(User user, ExternalLoginInfo info)
+        {
+            return await _userManager.AddLoginAsync(user, info);
+        }
+
+        public async Task SignInAsync(User user)
+        {
+            await _signInManager.SignInAsync(user, isPersistent: false);
         }
     }
 }

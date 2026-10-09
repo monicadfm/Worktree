@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Worktree.Data;
 using Worktree.Data.Entities;
 using Worktree.Helpers;
@@ -55,6 +56,123 @@ namespace Worktree.Controllers
         {
             await _userHelper.LogoutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExternalLogin(string provider, string? returnUrl = null)
+        {
+            var providers = await _userHelper.GetExternalLoginsAsync();
+            if (!providers.Any(p => p.Name == provider))
+            {
+                ModelState.AddModelError(string.Empty, "This login provider isn't configured on this server.");
+                return View(nameof(Login));
+            }
+
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl = SafeReturnUrl(returnUrl) });
+            var properties = _userHelper.ConfigureExternalLogin(provider, redirectUrl!);
+            return Challenge(properties, provider);
+        }
+
+        // GET
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Error from the external provider: {remoteError}");
+                return View(nameof(Login));
+            }
+
+            var info = await _userHelper.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                if (this.User.Identity!.IsAuthenticated)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.AddModelError(string.Empty, "Couldn't sign in with Google.");
+                return View(nameof(Login));
+            }
+
+            // if alr linked to a normmal account
+            var result = await _userHelper.ExternalLoginSignInAsync(info);
+            if (result.Succeeded)
+            {
+                return RedirectToLocal(returnUrl);
+            }
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError(string.Empty, "Google didn't return the required data (email).");
+                return View(nameof(Login));
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(email);
+
+            // create account from the Google profile
+            if (user == null)
+            {
+                var firstName = info.Principal.FindFirstValue(ClaimTypes.GivenName) ?? email.Split('@')[0];
+                var lastName = info.Principal.FindFirstValue(ClaimTypes.Surname) ?? string.Empty;
+                var picture = info.Principal.FindFirstValue("urn:google:picture");
+
+                if (firstName.Length > 50)
+                {
+                    firstName = firstName[..50];
+                }
+
+                if (lastName.Length > 50)
+                {
+                    lastName = lastName[..50];
+                }
+
+                if (picture?.Length > 300)
+                {
+                    picture = null;
+                }
+
+                user = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
+                    UserName = email,
+                    EmailConfirmed = true,
+                    Profile = new UserProfile
+                    {
+                        AvatarUrl = picture
+                    }
+                };
+
+                var createResult = await _userHelper.AddUserAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    foreach (var error in createResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+
+                    return View(nameof(Login));
+                }
+            }
+
+            // link Google to the account
+            var linkResult = await _userHelper.AddLoginAsync(user, info);
+            if (!linkResult.Succeeded)
+            {
+                foreach (var error in linkResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                return View(nameof(Login));
+            }
+
+            await _userHelper.SignInAsync(user);
+            return RedirectToLocal(returnUrl);
         }
 
         public IActionResult Register()
@@ -296,6 +414,38 @@ namespace Worktree.Controllers
         public IActionResult NotAuthorized()
         {
             return View();
+        }
+
+        private string? SafeReturnUrl(string? returnUrl)
+        {
+            if (string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl))
+            {
+                return null;
+            }
+
+            var path = returnUrl.Split('?')[0].Split('#')[0].TrimEnd('/');
+            string[] authPages = { "/Account/ExternalLoginCallback", "/Account/ExternalLogin", "/Account/Login" };
+
+            foreach (var page in authPages)
+            {
+                if (path.EndsWith(page, StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+            }
+
+            return returnUrl;
+        }
+
+        private IActionResult RedirectToLocal(string? returnUrl)
+        {
+            var destination = SafeReturnUrl(returnUrl);
+            if (destination != null)
+            {
+                return LocalRedirect(destination);
+            }
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }
