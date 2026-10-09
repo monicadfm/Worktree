@@ -1,6 +1,24 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
+
 <h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<p class="text-muted">Worktree is a student project developed for UFCD 5417 (CET 105 – CINEL).</p>
+
+<h5 class="mt-4">What data we store</h5>
+<ul>
+    <li>Your name and email address, used to log in and to identify you to your team.</li>
+    <li>Optional profile information: job title, bio, avatar URL, theme and default project.</li>
+    <li>The projects, tasks, labels and comments you create.</li>
+</ul>
+
+<h5 class="mt-4">How it's protected</h5>
+<ul>
+    <li>Passwords are never stored in plain text: they are hashed by ASP.NET Core Identity.</li>
+    <li>Projects are private: only their members can see them.</li>
+    <li>Your email is only used to send password recovery links.</li>
+</ul>
+
+<h5 class="mt-4">Your data</h5>
+<p>You can update your profile at any time on the <a asp-controller="Account" asp-action="ChangeUser">My Profile</a> page.</p>
