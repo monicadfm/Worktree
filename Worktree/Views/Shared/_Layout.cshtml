@@ -1,12 +1,19 @@
 ﻿@inject Worktree.Helpers.IUserHelper UserHelper
 @{
     var theme = "light";
+    var displayName = this.User.Identity?.Name ?? string.Empty;
+
     if (this.User.Identity!.IsAuthenticated)
     {
         var currentUser = await UserHelper.GetUserWithProfileAsync(this.User.Identity.Name!);
-        if (currentUser?.Profile?.Theme == Worktree.Data.Entities.AppTheme.Dark)
+        if (currentUser != null)
         {
-            theme = "dark";
+            displayName = currentUser.FullName;
+
+            if (currentUser.Profile?.Theme == Worktree.Data.Entities.AppTheme.Dark)
+            {
+                theme = "dark";
+            }
         }
     }
 }
@@ -49,10 +56,11 @@
                         @if (this.User.Identity!.IsAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    @this.User.Identity.Name
+                                <a class="nav-link dropdown-toggle link-body-emphasis" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @displayName
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><h6 class="dropdown-header">@this.User.Identity.Name</h6></li>
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ChangeUser">My Profile</a></li>
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ChangePassword">Change Password</a></li>
                                     <li><hr class="dropdown-divider" /></li>
