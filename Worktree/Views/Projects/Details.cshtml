@@ -5,7 +5,7 @@
 }
 
 <div class="mb-3">
-    <span class="badge bg-dark fs-6">@Model.Key</span>
+    <span class="badge bg-secondary fs-6">@Model.Key</span>
     <h1 class="d-inline align-middle ms-2">@Model.Name</h1>
     @if (Model.IsArchived)
     {
@@ -58,7 +58,7 @@
 
     <a asp-controller="Tasks" asp-action="Index" asp-route-projectId="@Model.Id" class="btn btn-primary">Tasks</a>
 
-    <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@Model.Id" class="btn btn-dark">Board</a>
+    <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@Model.Id" class="btn btn-board">Board</a>
 
     <a asp-controller="Labels" asp-action="Index" asp-route-projectId="@Model.Id" class="btn btn-secondary">Labels</a>
 

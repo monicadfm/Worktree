@@ -20,3 +20,14 @@ html {
 body {
   margin-bottom: 60px;
 }
+.btn-board {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #0a58ca;
+  --bs-btn-border-color: #0a58ca;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #084298;
+  --bs-btn-hover-border-color: #084298;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #084298;
+  --bs-btn-active-border-color: #084298;
+}

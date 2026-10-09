@@ -22,7 +22,7 @@ else
         <h1 class="mb-0">Hello, @Model.FirstName!</h1>
         @if (Model.DefaultProjectId.HasValue)
         {
-            <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@Model.DefaultProjectId" class="btn btn-dark">★ Open my default board</a>
+            <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@Model.DefaultProjectId" class="btn btn-warning">★ Open my default board</a>
         }
     </div>
     <p class="text-muted mb-4">Here's what's happening in your projects.</p>
@@ -76,15 +76,15 @@ else
                     <div class="card-body py-2">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="badge bg-dark">@project.Key</span>
+                                <span class="badge bg-secondary">@project.Key</span>
                                 <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"
-                                   class="fw-semibold text-decoration-none text-dark ms-1">@project.Name</a>
+                                   class="fw-semibold text-decoration-none link-body-emphasis ms-1">@project.Name</a>
                                 @if (project.Id == Model.DefaultProjectId)
                                 {
                                     <span class="text-warning ms-1" title="Default project">★</span>
                                 }
                             </div>
-                            <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@project.Id" class="btn btn-sm btn-outline-dark">Board</a>
+                            <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@project.Id" class="btn btn-sm btn-outline-secondary">Board</a>
                         </div>
                         <div class="progress mt-2" style="height: 8px">
                             <div class="progress-bar bg-success" style="width: @percent%"></div>
