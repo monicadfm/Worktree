@@ -6,7 +6,7 @@
 }
 
 <div class="mb-3">
-    <span class="badge bg-secondary fs-6">@Model.Project.Key-@Model.Number</span>
+    <span class="key">@Model.Project.Key-@Model.Number</span>
     <h1 class="d-inline align-middle ms-2">@Model.Title</h1>
 </div>
 
@@ -23,7 +23,7 @@
             }
             @foreach (var tl in Model.TaskLabels)
             {
-                <span class="badge me-1" style="background-color: @tl.Label.Color">@tl.Label.Name</span>
+                <span class="label-tag me-1" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
             }
         </p>
     </div>
@@ -31,10 +31,10 @@
     <div class="col-md-4">
         <dl class="row">
             <dt class="col-5">Status</dt>
-            <dd class="col-7">@Model.Status.GetDisplayName()</dd>
+            <dd class="col-7"><span class="pill status-@Model.Status.CssName()">@Model.Status.GetDisplayName()</span></dd>
 
             <dt class="col-5">Priority</dt>
-            <dd class="col-7">@Model.Priority</dd>
+            <dd class="col-7"><span class="pill prio-@Model.Priority.CssName()">@Model.Priority</span></dd>
 
             <dt class="col-5">Assignee</dt>
             <dd class="col-7">@(Model.Assignee?.FullName ?? "Unassigned")</dd>
@@ -44,7 +44,7 @@
                 @(Model.DueDate?.ToString("dd/MM/yyyy") ?? "—")
                 @if (overdue)
                 {
-                    <span class="badge bg-danger">Overdue</span>
+                    <span class="pill prio-urgent">Overdue</span>
                 }
             </dd>
 

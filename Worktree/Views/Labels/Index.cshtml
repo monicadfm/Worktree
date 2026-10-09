@@ -7,7 +7,7 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1><span class="badge bg-secondary align-middle">@project.Key</span> Labels</h1>
+    <h1><span class="key align-middle">@project.Key</span> Labels</h1>
     <div>
         @if (isOwner && !project.IsArchived)
         {
@@ -38,7 +38,7 @@ else
             @foreach (var item in Model)
             {
                 <tr>
-                    <td><span class="badge" style="background-color: @item.Color">@item.Name</span></td>
+                    <td><span class="label-tag" style="color: @item.Color; border-color: @item.Color">@item.Name</span></td>
                     <td class="text-muted">@item.Color</td>
                     <td>@item.TaskLabels.Count task(s)</td>
                     <td class="text-end">

@@ -5,11 +5,11 @@
 }
 
 <div class="mb-3">
-    <span class="badge bg-secondary fs-6">@Model.Key</span>
+    <span class="key">@Model.Key</span>
     <h1 class="d-inline align-middle ms-2">@Model.Name</h1>
     @if (Model.IsArchived)
     {
-        <span class="badge bg-secondary align-middle">Archived</span>
+        <span class="pill pill-muted align-middle">Archived</span>
     }
 </div>
 
@@ -32,9 +32,7 @@
                 <td>@member.User.FullName</td>
                 <td>@member.User.Email</td>
                 <td>
-                    <span class="badge @(member.Role == Worktree.Data.Entities.UserRoles.Owner ? "bg-primary" : "bg-light text-dark")">
-                        @member.Role
-                    </span>
+                    <span class="pill role-@member.Role.CssName()">@member.Role</span>
                 </td>
             </tr>
         }

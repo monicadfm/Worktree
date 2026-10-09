@@ -32,12 +32,12 @@ else
             @foreach (var item in Model)
             {
                 <tr>
-                    <td><span class="badge bg-secondary">@item.Key</span></td>
+                    <td><span class="key">@item.Key</span></td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
                         @if (item.IsArchived)
                         {
-                            <span class="badge bg-secondary ms-1">Archived</span>
+                            <span class="pill pill-muted ms-1">Archived</span>
                         }
                     </td>
                     <td>@item.Tasks.Count</td>

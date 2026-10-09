@@ -6,22 +6,12 @@
     var statuses = Enum.GetValues<TaskItemStatus>();
 }
 
-@functions {
-    string PriorityBadge(TaskItemPrio p) => p switch
-    {
-        TaskItemPrio.Low => "bg-light text-dark",
-        TaskItemPrio.Medium => "bg-info text-dark",
-        TaskItemPrio.High => "bg-warning text-dark",
-        _ => "bg-danger"
-    };
-}
-
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>
-        <span class="badge bg-secondary align-middle">@Model.Project.Key</span> Board
+        <span class="key align-middle">@Model.Project.Key</span> Board
         @if (Model.Project.IsArchived)
         {
-            <span class="badge bg-secondary align-middle fs-6">Archived</span>
+            <span class="pill pill-muted align-middle">Archived</span>
         }
     </h1>
     <div>
@@ -62,7 +52,7 @@
             <div class="bg-body-tertiary border rounded p-2 h-100">
                 <h6 class="d-flex justify-content-between align-items-center px-1 mb-2">
                     <span>@status.GetDisplayName()</span>
-                    <span class="badge bg-secondary">@columnTasks.Count</span>
+                    <span class="pill pill-muted">@columnTasks.Count</span>
                 </h6>
 
                 @if (!columnTasks.Any())
@@ -77,8 +67,8 @@
                     <div class="card mb-2 shadow-sm">
                         <div class="card-body p-2">
                             <div class="d-flex justify-content-between">
-                                <small class="text-muted">@Model.Project.Key-@task.Number</small>
-                                <span class="badge @PriorityBadge(task.Priority)">@task.Priority</span>
+                                <span class="key">@Model.Project.Key-@task.Number</span>
+                                <span class="pill prio-@task.Priority.CssName()">@task.Priority</span>
                             </div>
 
                             <a asp-action="Details" asp-route-id="@task.Id" class="d-block fw-semibold text-decoration-none link-body-emphasis my-1">
@@ -87,14 +77,14 @@
 
                             @foreach (var tl in task.TaskLabels)
                             {
-                                <span class="badge me-1" style="background-color: @tl.Label.Color">@tl.Label.Name</span>
+                                <span class="label-tag me-1" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
                             }
 
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <small class="text-muted">@(task.Assignee?.FullName ?? "Unassigned")</small>
                                 @if (task.DueDate.HasValue)
                                 {
-                                    <small class="@(overdue ? "text-danger fw-bold" : "text-muted")">@task.DueDate.Value.ToString("dd/MM")</small>
+                                    <small class="@(overdue ? "text-danger fw-semibold" : "text-muted")">@(overdue ? "Overdue · " : "")@task.DueDate.Value.ToString("dd/MM")</small>
                                 }
                             </div>
 

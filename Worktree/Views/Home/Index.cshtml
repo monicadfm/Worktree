@@ -76,7 +76,7 @@ else
                     <div class="card-body py-2">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="badge bg-secondary">@project.Key</span>
+                                <span class="key">@project.Key</span>
                                 <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"
                                    class="fw-semibold text-decoration-none link-body-emphasis ms-1">@project.Name</a>
                                 @if (project.Id == Model.DefaultProjectId)
@@ -112,11 +112,11 @@ else
                         <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.Id"
                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <span>
-                                <small class="text-muted me-1">@task.Project.Key-@task.Number</small>
+                                <span class="key me-1">@task.Project.Key-@task.Number</span>
                                 @task.Title
                             </span>
                             <span>
-                                <span class="badge bg-light text-dark">@task.Status.GetDisplayName()</span>
+                                <span class="pill status-@task.Status.CssName()">@task.Status.GetDisplayName()</span>
                                 @if (task.DueDate.HasValue)
                                 {
                                     <small class="ms-1 @(overdue ? "text-danger fw-bold" : "text-muted")">@task.DueDate.Value.ToString("dd/MM")</small>
@@ -141,7 +141,7 @@ else
                         <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.Id"
                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <span>
-                                <small class="text-muted me-1">@task.Project.Key-@task.Number</small>
+                                <span class="key me-1">@task.Project.Key-@task.Number</span>
                                 @task.Title
                             </span>
                             <span>

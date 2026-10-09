@@ -12,5 +12,10 @@ namespace Worktree.Helpers
 
             return display?.GetName() ?? value.ToString();
         }
+
+        public static string CssName(this Enum value)
+        {
+            return value.ToString().ToLower();
+        }
     }
 }

@@ -94,7 +94,7 @@ a:hover {
     border-color: var(--blue-dark);
 }
 
-.task-key {
+.key {
     font-family: var(--mono-font);
     font-size: 13px;
     font-weight: 500;
@@ -226,3 +226,87 @@ body {
         background-color: var(--page);
         color: var(--font);
     }
+
+.pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.prio-urgent {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.prio-high {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.prio-medium, .status-inprogress {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.prio-low, .status-todo, .role-member, .pill-muted {
+    background-color: #e2e8f0;
+    color: #334155;
+}
+
+.status-inreview {
+    background-color: #f3e8ff;
+    color: #6b21a8;
+}
+
+.status-done {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.role-owner {
+    background-color: var(--font);
+    color: var(--card);
+}
+
+[data-bs-theme="dark"] .prio-urgent {
+    background-color: #3b1219;
+    color: #fca5a5;
+}
+
+[data-bs-theme="dark"] .prio-high {
+    background-color: #3a2508;
+    color: #fcd34d;
+}
+
+[data-bs-theme="dark"] .prio-medium, [data-bs-theme="dark"] .status-inprogress {
+    background-color: #172554;
+    color: #93c5fd;
+}
+
+[data-bs-theme="dark"] .prio-low, [data-bs-theme="dark"] .status-todo, [data-bs-theme="dark"] .role-member, [data-bs-theme="dark"] .pill-muted {
+    background-color: #273041;
+    color: #cbd5e1;
+}
+
+[data-bs-theme="dark"] .status-inreview {
+    background-color: #2e1a47;
+    color: #d8b4fe;
+}
+
+[data-bs-theme="dark"] .status-done {
+    background-color: #0f2e1d;
+    color: #86efac;
+}
+
+.label-tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border: 1px solid;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
