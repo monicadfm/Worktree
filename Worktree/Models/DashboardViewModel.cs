@@ -11,5 +11,7 @@ namespace Worktree.Models
         public List<TaskItem> AssignedToMe { get; set; } = new List<TaskItem>();
 
         public List<TaskItem> Overdue { get; set; } = new List<TaskItem>();
+
+        public int? DefaultProjectId { get; set; }
     }
 }

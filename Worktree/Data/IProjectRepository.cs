@@ -30,5 +30,7 @@ namespace Worktree.Data
         Task RemoveMemberAsync(ProjectMember member);
 
         Task<IEnumerable<SelectListItem>> GetComboMembersAsync(int projectId);
+
+        Task<IEnumerable<SelectListItem>> GetComboProjectsForUserAsync(string userId);
     }
 }

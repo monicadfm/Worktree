@@ -33,18 +33,26 @@ namespace Worktree.Controllers
                 return View();
             }
 
-            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name!);
+            var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity.Name!);
             if (user == null)
             {
                 return View();
             }
 
+            var defaultProjectId = user.Profile?.DefaultProjectId;
+
+            var projects = await _projectRepository.GetAllForUser(user.Id)
+                .Where(p => !p.IsArchived)
+                .ToListAsync();
+
             var model = new DashboardViewModel
             {
                 FirstName = user.FirstName,
-                Projects = await _projectRepository.GetAllForUser(user.Id)
-                    .Where(p => !p.IsArchived)
-                    .ToListAsync(),
+                DefaultProjectId = defaultProjectId,
+                Projects = projects
+                    .OrderByDescending(p => p.Id == defaultProjectId)
+                    .ThenBy(p => p.Name)
+                    .ToList(),
                 AssignedToMe = await _taskRepository.GetAssignedToUser(user.Id).ToListAsync(),
                 Overdue = await _taskRepository.GetOverdueForUser(user.Id).ToListAsync()
             };

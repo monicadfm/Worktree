@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Worktree.Data.Entities;
 
 namespace Worktree.Models
@@ -29,5 +31,11 @@ namespace Worktree.Models
         public string? AvatarUrl { get; set; }
 
         public AppTheme Theme { get; set; }
+
+        [Display(Name = "Default Project")]
+        public int? DefaultProjectId { get; set; }
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> Projects { get; set; } = new List<SelectListItem>();
     }
 }

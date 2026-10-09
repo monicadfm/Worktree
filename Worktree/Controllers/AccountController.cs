@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Worktree.Data;
 using Worktree.Data.Entities;
 using Worktree.Helpers;
 using Worktree.Models;
@@ -11,11 +12,13 @@ namespace Worktree.Controllers
     {
         private readonly IUserHelper _userHelper;
         private readonly IMailHelper _mailHelper;
+        private readonly IProjectRepository _projectRepository;
 
-        public AccountController(IUserHelper userHelper, IMailHelper mailHelper)
+        public AccountController(IUserHelper userHelper, IMailHelper mailHelper, IProjectRepository projectRepository)
         {
             _userHelper = userHelper;
             _mailHelper = mailHelper;
+            _projectRepository = projectRepository;
         }
 
         public IActionResult Login()
@@ -124,7 +127,10 @@ namespace Worktree.Controllers
                     model.Bio = user.Profile.Bio;
                     model.AvatarUrl = user.Profile.AvatarUrl;
                     model.Theme = user.Profile.Theme;
+                    model.DefaultProjectId = user.Profile.DefaultProjectId;
                 }
+
+                model.Projects = await _projectRepository.GetComboProjectsForUserAsync(user.Id);
             }
 
             return View(model);
@@ -134,36 +140,46 @@ namespace Worktree.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeUser(ChangeUserViewModel model)
         {
+            var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity!.Name!);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // the default project must be one of the user's projects
+            if (model.DefaultProjectId.HasValue
+                && !await _projectRepository.IsMemberAsync(model.DefaultProjectId.Value, user.Id))
+            {
+                ModelState.AddModelError(nameof(model.DefaultProjectId), "You can only choose a project you're a member of.");
+            }
+
             if (ModelState.IsValid)
             {
-                var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity!.Name!);
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
 
-                if (user != null)
+                if (user.Profile != null)
                 {
-                    user.FirstName = model.FirstName;
-                    user.LastName = model.LastName;
+                    user.Profile.JobTitle = model.JobTitle;
+                    user.Profile.Bio = model.Bio;
+                    user.Profile.AvatarUrl = model.AvatarUrl;
+                    user.Profile.Theme = model.Theme;
+                    user.Profile.DefaultProjectId = model.DefaultProjectId;
+                }
 
-                    if (user.Profile != null)
-                    {
-                        user.Profile.JobTitle = model.JobTitle;
-                        user.Profile.Bio = model.Bio;
-                        user.Profile.AvatarUrl = model.AvatarUrl;
-                        user.Profile.Theme = model.Theme;
-                    }
+                var response = await _userHelper.UpdateUserAsync(user);
 
-                    var response = await _userHelper.UpdateUserAsync(user);
-
-                    if (response.Succeeded)
-                    {
-                        ViewBag.UserMessage = "User updated!";
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, response.Errors.FirstOrDefault()!.Description);
-                    }
+                if (response.Succeeded)
+                {
+                    ViewBag.UserMessage = "User updated!";
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, response.Errors.FirstOrDefault()!.Description);
                 }
             }
 
+            model.Projects = await _projectRepository.GetComboProjectsForUserAsync(user.Id);
             return View(model);
         }
 

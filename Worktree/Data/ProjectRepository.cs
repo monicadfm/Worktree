@@ -143,5 +143,26 @@ namespace Worktree.Data
 
             return list;
         }
+
+        public async Task<IEnumerable<SelectListItem>> GetComboProjectsForUserAsync(string userId)
+        {
+            var list = await _context.Projects
+                .Where(p => !p.IsArchived && p.Members.Any(m => m.UserId == userId))
+                .OrderBy(p => p.Name)
+                .Select(p => new SelectListItem
+                {
+                    Text = p.Key + " - " + p.Name,
+                    Value = p.Id.ToString()
+                })
+                .ToListAsync();
+
+            list.Insert(0, new SelectListItem
+            {
+                Text = "(None)",
+                Value = ""
+            });
+
+            return list;
+        }
     }
 }
