@@ -176,14 +176,9 @@ body {
     color: var(--font);
 }
 
-.logo-tile {
-    display: grid;
-    place-items: center;
+.logo-icon {
     width: 28px;
     height: 28px;
-    border-radius: 7px;
-    background-color: var(--font);
-    color: var(--card);
 }
 
 .topbar .navbar-nav {
