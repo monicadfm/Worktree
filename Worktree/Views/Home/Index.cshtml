@@ -18,140 +18,95 @@
 }
 else
 {
-    <div class="d-flex justify-content-between align-items-center mb-1">
-        <h1 class="mb-0">Hello, @Model.FirstName!</h1>
-        @if (Model.DefaultProjectId.HasValue)
-        {
-            <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@Model.DefaultProjectId" class="btn btn-warning">★ Open my default board</a>
-        }
-    </div>
-    <p class="text-muted mb-4">Here's what's happening in your projects.</p>
+    var hour = DateTime.Now.Hour;
+    var greeting = hour < 12 ? "Good morning" : hour < 19 ? "Good afternoon" : "Good evening";
+
+    var focus = Model.Projects.FirstOrDefault();
+    var focusTotal = focus?.Tasks.Count ?? 0;
+    var focusDone = focus?.Tasks.Count(t => t.Status == TaskItemStatus.Done) ?? 0;
+    var focusPercent = focusTotal == 0 ? 0 : focusDone * 100 / focusTotal;
+    var focusOverdue = focus == null ? 0 : Model.Overdue.Count(t => t.ProjectId == focus.Id);
+
+    <h1 class="mb-1">@greeting, @Model.FirstName</h1>
+    <p class="text-muted mb-4">Here's what's on your plate today.</p>
 
     <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <div class="display-6 fw-bold">@Model.Projects.Count</div>
-                    <div class="text-muted">Active projects</div>
-                </div>
+            <div class="card stat-card h-100">
+                <div class="stat-label">Assigned to me</div>
+                <div class="stat-number">@Model.AssignedToMe.Count</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <div class="display-6 fw-bold text-primary">@Model.AssignedToMe.Count</div>
-                    <div class="text-muted">Open tasks assigned to me</div>
-                </div>
+            <div class="card stat-card h-100">
+                <div class="stat-label">Overdue@(focus != null ? " in " + focus.Key : "")</div>
+                <div class="stat-number @(focusOverdue > 0 ? "text-danger" : "")">@focusOverdue</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <div class="display-6 fw-bold @(Model.Overdue.Any() ? "text-danger" : "text-success")">@Model.Overdue.Count</div>
-                    <div class="text-muted">Overdue tasks</div>
+            <div class="card stat-card h-100">
+                <div class="stat-label">@(focus != null ? focus.Key + " progress" : "Progress")</div>
+                <div class="stat-number">@focusPercent%</div>
+                <div class="bar mt-2">
+                    <div class="bar-fill" style="width: @focusPercent%"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h4 class="mb-0">My projects</h4>
-                <a asp-controller="Projects" asp-action="Create" class="btn btn-sm btn-primary">New Project</a>
+        <div class="col-lg-8">
+            <div class="card panel h-100">
+                <h2 class="panel-title">My open tasks</h2>
+
+                @if (!Model.AssignedToMe.Any())
+                {
+                    <p class="text-muted mb-0">Nothing assigned to you.</p>
+                }
+
+                @foreach (var task in Model.AssignedToMe)
+                {
+                    var overdue = task.DueDate.HasValue && task.DueDate.Value.Date < DateTime.Today;
+
+                    <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.Id" class="task-row">
+                        <span class="key task-row-key">@task.Project.Key-@task.Number</span>
+                        <span class="task-row-title">@task.Title</span>
+                        <span class="pill status-@task.Status.CssName()">@task.Status.GetDisplayName()</span>
+                        <small class="task-row-due @(overdue ? "text-danger" : "text-muted")">
+                            @(task.DueDate.HasValue ? (overdue ? "Overdue · " : "") + task.DueDate.Value.ToString("dd/MM") : "—")
+                        </small>
+                    </a>
+                }
             </div>
-
-            @if (!Model.Projects.Any())
-            {
-                <p class="text-muted">You're not in any active project yet.</p>
-            }
-
-            @foreach (var project in Model.Projects)
-            {
-                var total = project.Tasks.Count;
-                var done = project.Tasks.Count(t => t.Status == TaskItemStatus.Done);
-                var percent = total == 0 ? 0 : done * 100 / total;
-
-                <div class="card mb-2 shadow-sm">
-                    <div class="card-body py-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="key">@project.Key</span>
-                                <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"
-                                   class="fw-semibold text-decoration-none link-body-emphasis ms-1">@project.Name</a>
-                                @if (project.Id == Model.DefaultProjectId)
-                                {
-                                    <span class="text-warning ms-1" title="Default project">★</span>
-                                }
-                            </div>
-                            <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@project.Id" class="btn btn-sm btn-outline-secondary">Board</a>
-                        </div>
-                        <div class="progress mt-2" style="height: 8px">
-                            <div class="progress-bar bg-success" style="width: @percent%"></div>
-                        </div>
-                        <small class="text-muted">@done / @total tasks done · @project.Members.Count member(s)</small>
-                    </div>
-                </div>
-            }
         </div>
 
-        <div class="col-lg-6">
-            <h4>Assigned to me</h4>
-
-            @if (!Model.AssignedToMe.Any())
-            {
-                <p class="text-muted">Nothing assigned to you. 🎉</p>
-            }
-            else
-            {
-                <div class="list-group mb-4">
-                    @foreach (var task in Model.AssignedToMe)
-                    {
-                        var overdue = task.DueDate.HasValue && task.DueDate.Value.Date < DateTime.Today;
-
-                        <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.Id"
-                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <span>
-                                <span class="key me-1">@task.Project.Key-@task.Number</span>
-                                @task.Title
-                            </span>
-                            <span>
-                                <span class="pill status-@task.Status.CssName()">@task.Status.GetDisplayName()</span>
-                                @if (task.DueDate.HasValue)
-                                {
-                                    <small class="ms-1 @(overdue ? "text-danger fw-bold" : "text-muted")">@task.DueDate.Value.ToString("dd/MM")</small>
-                                }
-                            </span>
-                        </a>
-                    }
+        <div class="col-lg-4">
+            <div class="card panel h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="mb-0">My projects</h2>
+                    <a asp-controller="Projects" asp-action="Create" class="btn btn-sm btn-primary">New</a>
                 </div>
-            }
 
-            <h4 class="text-danger">Overdue</h4>
+                @if (!Model.Projects.Any())
+                {
+                    <p class="text-muted mb-0">You're not in any active project yet.</p>
+                }
 
-            @if (!Model.Overdue.Any())
-            {
-                <p class="text-muted">No overdue tasks. Nice work!</p>
-            }
-            else
-            {
-                <div class="list-group">
-                    @foreach (var task in Model.Overdue)
-                    {
-                        <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.Id"
-                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <span>
-                                <span class="key me-1">@task.Project.Key-@task.Number</span>
-                                @task.Title
-                            </span>
-                            <span>
-                                <small class="text-muted me-1">@(task.Assignee?.FullName ?? "Unassigned")</small>
-                                <small class="text-danger fw-bold">@task.DueDate!.Value.ToString("dd/MM")</small>
-                            </span>
-                        </a>
-                    }
-                </div>
-            }
+                @foreach (var project in Model.Projects)
+                {
+                    var total = project.Tasks.Count;
+                    var done = project.Tasks.Count(t => t.Status == TaskItemStatus.Done);
+                    var role = project.Members.FirstOrDefault(m => m.UserId == Model.UserId)?.Role;
+
+                    <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@project.Id" class="project-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="fw-semibold">@project.Name</span>
+                            <span class="key">@project.Key</span>
+                        </div>
+                        <small class="text-muted">@done of @total done · @role@(project.Id == Model.DefaultProjectId ? " · Default" : "")</small>
+                    </a>
+                }
+            </div>
         </div>
     </div>
 }

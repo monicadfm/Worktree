@@ -6,6 +6,8 @@ namespace Worktree.Models
     {
         public string FirstName { get; set; } = string.Empty;
 
+        public string UserId { get; set; } = string.Empty;
+
         public List<Project> Projects { get; set; } = new List<Project>();
 
         public List<TaskItem> AssignedToMe { get; set; } = new List<TaskItem>();

@@ -6,14 +6,17 @@
     var statuses = Enum.GetValues<TaskItemStatus>();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>
-        <span class="key align-middle">@Model.Project.Key</span> Board
-        @if (Model.Project.IsArchived)
-        {
-            <span class="pill pill-muted align-middle">Archived</span>
-        }
-    </h1>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+    <div>
+        <div class="key">@Model.Project.Key</div>
+        <h1 class="mb-0">
+            @Model.Project.Name
+            @if (Model.Project.IsArchived)
+            {
+                <span class="pill pill-muted align-middle">Archived</span>
+            }
+        </h1>
+    </div>
     <div>
         @if (!Model.Project.IsArchived)
         {
@@ -43,89 +46,98 @@
     </div>
 </form>
 
-<div class="row g-3">
+<div class="board">
     @foreach (var status in statuses)
     {
         var columnTasks = Model.Tasks.Where(t => t.Status == status).ToList();
 
-        <div class="col-md-3">
-            <div class="bg-body-tertiary border rounded p-2 h-100">
-                <h6 class="d-flex justify-content-between align-items-center px-1 mb-2">
-                    <span>@status.GetDisplayName()</span>
-                    <span class="pill pill-muted">@columnTasks.Count</span>
-                </h6>
+        <div class="board-col">
+            <div class="board-col-head">
+                <span>@status.GetDisplayName()</span>
+                <span class="pill pill-muted">@columnTasks.Count</span>
+            </div>
 
-                @if (!columnTasks.Any())
-                {
-                    <p class="text-muted small text-center my-4">No tasks</p>
-                }
+            @if (!columnTasks.Any())
+            {
+                <p class="text-muted small text-center my-4">No tasks</p>
+            }
 
-                @foreach (var task in columnTasks)
-                {
-                    var overdue = task.DueDate.HasValue && task.DueDate.Value.Date < DateTime.Today && task.Status != TaskItemStatus.Done;
+            @foreach (var task in columnTasks)
+            {
+                var overdue = task.DueDate.HasValue && task.DueDate.Value.Date < DateTime.Today && task.Status != TaskItemStatus.Done;
 
-                    <div class="card mb-2 shadow-sm">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <span class="key">@Model.Project.Key-@task.Number</span>
-                                <span class="pill prio-@task.Priority.CssName()">@task.Priority</span>
-                            </div>
+                <div class="task-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="key">@Model.Project.Key-@task.Number</span>
+                        <span class="pill prio-@task.Priority.CssName()">@task.Priority</span>
+                    </div>
 
-                            <a asp-action="Details" asp-route-id="@task.Id" class="d-block fw-semibold text-decoration-none link-body-emphasis my-1">
-                                @task.Title
-                            </a>
+                    <a asp-action="Details" asp-route-id="@task.Id" class="task-title">@task.Title</a>
 
+                    @if (task.TaskLabels.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-1 mb-2">
                             @foreach (var tl in task.TaskLabels)
                             {
-                                <span class="label-tag me-1" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
-                            }
-
-                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                <small class="text-muted">@(task.Assignee?.FullName ?? "Unassigned")</small>
-                                @if (task.DueDate.HasValue)
-                                {
-                                    <small class="@(overdue ? "text-danger fw-semibold" : "text-muted")">@(overdue ? "Overdue · " : "")@task.DueDate.Value.ToString("dd/MM")</small>
-                                }
-                            </div>
-
-                            @if (!Model.Project.IsArchived)
-                            {
-                                <div class="d-flex justify-content-between mt-2">
-                                    @if (status != TaskItemStatus.ToDo)
-                                    {
-                                        <form asp-action="Move" method="post">
-                                            <input type="hidden" name="id" value="@task.Id" />
-                                            <input type="hidden" name="status" value="@(status - 1)" />
-                                            <input type="hidden" name="returnUrl" value="@returnUrl" />
-                                            <button type="submit" class="btn btn-secondary btn-sm"
-                                                    title="Move to @((status - 1).GetDisplayName())">
-                                                &larr;
-                                            </button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <span></span>
-                                    }
-
-                                    @if (status != TaskItemStatus.Done)
-                                    {
-                                        <form asp-action="Move" method="post">
-                                            <input type="hidden" name="id" value="@task.Id" />
-                                            <input type="hidden" name="status" value="@(status + 1)" />
-                                            <input type="hidden" name="returnUrl" value="@returnUrl" />
-                                            <button type="submit" class="btn btn-primary btn-sm"
-                                                    title="Move to @((status + 1).GetDisplayName())">
-                                                &rarr;
-                                            </button>
-                                        </form>
-                                    }
-                                </div>
+                                <span class="label-tag" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
                             }
                         </div>
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="d-flex align-items-center gap-2 small text-muted">
+                            @if (task.Assignee != null)
+                            {
+                                <span class="avatar avatar-sm">@task.Assignee.Initials</span>
+                                <span>@task.Assignee.FirstName</span>
+                            }
+                            else
+                            {
+                                <span>Unassigned</span>
+                            }
+                        </span>
+                        @if (task.DueDate.HasValue)
+                        {
+                            <small class="@(overdue ? "text-danger fw-semibold" : "text-muted")">@(overdue ? "Overdue · " : "")@task.DueDate.Value.ToString("dd/MM")</small>
+                        }
                     </div>
-                }
-            </div>
+
+                    @if (!Model.Project.IsArchived)
+                    {
+                        <div class="d-flex justify-content-between mt-2">
+                            @if (status != TaskItemStatus.ToDo)
+                            {
+                                <form asp-action="Move" method="post">
+                                    <input type="hidden" name="id" value="@task.Id" />
+                                    <input type="hidden" name="status" value="@(status - 1)" />
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                    <button type="submit" class="btn btn-line btn-sm"
+                                            title="Move to @((status - 1).GetDisplayName())">
+                                        &larr;
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span></span>
+                            }
+
+                            @if (status != TaskItemStatus.Done)
+                            {
+                                <form asp-action="Move" method="post">
+                                    <input type="hidden" name="id" value="@task.Id" />
+                                    <input type="hidden" name="status" value="@(status + 1)" />
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                    <button type="submit" class="btn btn-line btn-sm"
+                                            title="Move to @((status + 1).GetDisplayName())">
+                                        &rarr;
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    }
+                </div>
+            }
         </div>
     }
 </div>

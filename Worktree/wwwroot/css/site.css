@@ -310,3 +310,143 @@ body {
     font-size: 12px;
     font-weight: 500;
 }
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+.board-col {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--column);
+}
+
+.board-col-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--font-sec);
+}
+
+.task-card {
+    margin-bottom: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--card);
+}
+
+.task-card:hover {
+    border-color: var(--blue);
+}
+
+.task-title {
+    display: block;
+    margin-block: 6px 8px;
+    font-weight: 600;
+    color: var(--font);
+    text-decoration: none;
+}
+
+.task-title:hover {
+    color: var(--blue);
+}
+
+.avatar-sm {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+}
+
+.stat-card {
+    padding: 18px 20px;
+}
+
+.stat-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.bar {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: var(--column);
+}
+
+.bar-fill {
+    height: 100%;
+    background-color: var(--blue);
+}
+
+.panel {
+    padding: 18px 20px;
+}
+
+.panel-title {
+    margin-bottom: 12px;
+}
+
+.task-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 4px;
+    border-top: 1px solid var(--divider);
+    color: var(--font);
+    text-decoration: none;
+}
+
+.task-row-key {
+    width: 64px;
+    flex-shrink: 0;
+}
+
+.task-row:hover {
+    background-color: var(--page);
+    color: var(--font);
+}
+
+.task-row-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-row-due {
+    white-space: nowrap;
+}
+
+.project-item {
+    display: block;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--font);
+    text-decoration: none;
+}
+
+.project-item:last-child {
+    margin-bottom: 0;
+}
+
+.project-item:hover {
+    border-color: var(--blue);
+    color: var(--font);
+}

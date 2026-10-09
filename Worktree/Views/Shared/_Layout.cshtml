@@ -62,7 +62,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1 ms-sm-4">
                         <li class="nav-item">
-                            <a class="nav-link @(controller == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @(controller == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">@(this.User.Identity!.IsAuthenticated ? "Dashboard" : "Home")</a>
                         </li>
                         @if (this.User.Identity!.IsAuthenticated)
                         {

@@ -18,6 +18,8 @@ namespace Worktree.Data.Entities
         [Display(Name = "Full Name")]
         public string FullName => $"{FirstName} {LastName}";
 
+        public string Initials => ((FirstName.Length > 0 ? FirstName[..1] : "") + (LastName.Length > 0 ? LastName[..1] : "")).ToUpper();
+
         // 1:1 one profile for every user
         public UserProfile? Profile { get; set; }
 

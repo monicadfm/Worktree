@@ -48,6 +48,7 @@ namespace Worktree.Controllers
             var model = new DashboardViewModel
             {
                 FirstName = user.FirstName,
+                UserId = user.Id,
                 DefaultProjectId = defaultProjectId,
                 Projects = projects
                     .OrderByDescending(p => p.Id == defaultProjectId)
