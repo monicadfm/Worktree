@@ -3,53 +3,85 @@
 @{
     var project = (Project)ViewBag.Project;
     var isOwner = ViewBag.IsOwner == true;
+    var canEdit = isOwner && !project.IsArchived;
     ViewData["Title"] = project.Name + " - Labels";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1><span class="key align-middle">@project.Key</span> Labels</h1>
-    <div>
-        @if (isOwner && !project.IsArchived)
-        {
-            <a asp-action="Create" asp-route-projectId="@project.Id" class="btn btn-primary">New Label</a>
-        }
-        <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-success">Back to Project</a>
-    </div>
-</div>
+<partial name="_BoardHeader" model="ViewBag.Header" />
 
-@if (!Model.Any())
-{
-    <div class="text-center text-muted py-5">
-        <p>No labels yet.</p>
-    </div>
-}
-else
-{
-    <table class="table align-middle">
-        <thead>
-            <tr>
-                <th>Label</th>
-                <th>Color</th>
-                <th>Used by</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="labels-page">
+    <p class="tab-intro">These labels only exist in @project.Key. Each name can be used once per project.</p>
+
+    @if (canEdit)
+    {
+        <partial name="_LabelInlineForm" model="ViewBag.NewLabel" />
+    }
+    else if (!isOwner)
+    {
+        <p class="note">Only Owners can add, edit or delete labels.</p>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="card panel text-center text-muted">No labels yet.</div>
+    }
+    else
+    {
+        <div class="card list-card">
             @foreach (var item in Model)
             {
-                <tr>
-                    <td><span class="label-tag" style="color: @item.Color; border-color: @item.Color">@item.Name</span></td>
-                    <td class="text-muted">@item.Color</td>
-                    <td>@item.TaskLabels.Count task(s)</td>
-                    <td class="text-end">
-                        @if (isOwner && !project.IsArchived)
-                        {
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
-                        }
-                    </td>
-                </tr>
+                var count = item.TaskLabels.Count;
+
+                <div class="label-row">
+                    <span class="label-tag" style="color: @item.Color; border-color: @item.Color">@item.Name</span>
+                    <span class="key">@item.Color.ToUpper()</span>
+                    <span class="label-usage">Used by @count @(count == 1 ? "task" : "tasks")</span>
+
+                    @if (canEdit)
+                    {
+                        <div class="label-row-actions">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-line btn-sm">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-line-danger btn-sm">Delete</a>
+                        </div>
+                    }
+                </div>
             }
-        </tbody>
-    </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        const picker = document.getElementById("label-color-picker");
+        const hex = document.getElementById("Color");
+        const nameInput = document.getElementById("Name");
+        const preview = document.getElementById("label-preview");
+        const hexPattern = /^#[0-9A-Fa-f]{6}$/;
+
+        if (picker && hex && nameInput && preview) {
+            const updatePreview = () => {
+                const color = hexPattern.test(hex.value) ? hex.value : picker.value;
+                preview.style.color = color;
+                preview.style.borderColor = color;
+                preview.textContent = nameInput.value.trim() || "label";
+            };
+
+            picker.addEventListener("input", () => {
+                hex.value = picker.value.toUpperCase();
+                updatePreview();
+            });
+
+            hex.addEventListener("input", () => {
+                if (hexPattern.test(hex.value)) {
+                    picker.value = hex.value;
+                }
+                updatePreview();
+            });
+
+            nameInput.addEventListener("input", updatePreview);
+        }
+    </script>
 }

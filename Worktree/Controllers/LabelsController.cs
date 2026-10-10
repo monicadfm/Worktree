@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Worktree.Data;
+using Worktree.Data.Entities;
 using Worktree.Helpers;
 using Worktree.Models;
 
@@ -47,9 +48,11 @@ namespace Worktree.Controllers
                 return new NotFoundViewResult("LabelNotFound");
             }
 
-            ViewBag.Project = project;
-            ViewBag.IsOwner = await _projectRepository.IsOwnerAsync(project.Id, user.Id);
-            return View(_labelRepository.GetAllForProject(project.Id));
+            return await ShowIndexAsync(project, user.Id, new LabelViewModel
+            {
+                ProjectId = project.Id,
+                Color = "#2457D6"
+            });
         }
 
         // GET
@@ -130,8 +133,7 @@ namespace Worktree.Controllers
                 }
             }
 
-            model.ProjectKey = project.Key;
-            return View(model);
+            return await ShowIndexAsync(project, user.Id, model);
         }
 
         // GET
@@ -300,6 +302,16 @@ namespace Worktree.Controllers
 
             await _labelRepository.DeleteLabelAsync(label);
             return RedirectToAction(nameof(Index), new { projectId = project.Id });
+        }
+
+        private async Task<IActionResult> ShowIndexAsync(Project project, string userId, LabelViewModel newLabel)
+        {
+            ViewBag.Project = project;
+            ViewBag.IsOwner = await _projectRepository.IsOwnerAsync(project.Id, userId);
+            ViewBag.Header = await _projectRepository.GetBoardHeaderAsync(project, userId, "Labels");
+            ViewBag.NewLabel = newLabel;
+
+            return View("Index", await _labelRepository.GetAllForProject(project.Id).ToListAsync());
         }
     }
 }
