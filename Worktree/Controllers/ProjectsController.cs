@@ -43,6 +43,32 @@ namespace Worktree.Controllers
             return View(showArchived ? projects : active);
         }
 
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetDefault(int id)
+        {
+            var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(id, user.Id))
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            var project = await _projectRepository.GetByIdAsync(id);
+            if (project == null)
+            {
+                return new NotFoundViewResult("ProjectNotFound");
+            }
+
+            if (user.Profile != null && !project.IsArchived)
+            {
+                user.Profile.DefaultProjectId = project.Id;
+                await _userHelper.UpdateUserAsync(user);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

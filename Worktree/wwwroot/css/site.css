@@ -1330,3 +1330,51 @@ body {
     font-weight: 600;
     text-decoration: none;
 }
+
+.card-menu {
+    min-width: 230px;
+}
+
+.card-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    padding: 8px 12px;
+    color: var(--font);
+}
+
+.card-menu .icon {
+    color: var(--muted);
+}
+
+.card-menu .menu-current {
+    color: var(--muted);
+    cursor: default;
+}
+
+.card-menu .menu-current:hover {
+    background-color: transparent;
+}
+
+.icon-star {
+    fill: #d9a21b;
+    stroke: #d9a21b;
+}
+
+.card-menu .icon.icon-star {
+    color: #d9a21b;
+}
+
+.card-menu .menu-danger, .card-menu .menu-danger .icon {
+    color: var(--red);
+}
+
+.card-menu .menu-danger:hover {
+    background-color: #fee2e2;
+    color: var(--red);
+}
+
+[data-bs-theme="dark"] .card-menu .menu-danger:hover {
+    background-color: #3b1219;
+}
