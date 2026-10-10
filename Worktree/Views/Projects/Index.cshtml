@@ -1,52 +1,163 @@
 ﻿@model IEnumerable<Worktree.Data.Entities.Project>
 
 @{
-    ViewData["Title"] = "My Projects";
+    ViewData["Title"] = "Projects";
+    var userId = (string)ViewBag.UserId;
+    var defaultProjectId = (int?)ViewBag.DefaultProjectId;
+    var showArchived = ViewBag.ShowArchived == true;
+    var activeCount = (int)ViewBag.ActiveCount;
+    var ownedCount = (int)ViewBag.OwnedCount;
+    var archivedCount = (int)ViewBag.ArchivedCount;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>My Projects</h1>
-    <a asp-action="Create" class="btn btn-primary">New Project</a>
+<div class="page-head">
+    <div>
+        <h1>Projects</h1>
+        <p class="page-sub">
+            @activeCount active @(activeCount == 1 ? "project" : "projects") · you own @ownedCount@(archivedCount > 0 ? " · " + archivedCount + " archived" : "")
+        </p>
+    </div>
+    <div class="page-head-actions">
+        @if (archivedCount > 0)
+        {
+            <form asp-action="Index" method="get">
+                <label class="check-label">
+                    <input type="checkbox" name="showArchived" value="true" checked="@showArchived" onchange="this.form.submit()" />
+                    Show archived
+                </label>
+            </form>
+        }
+        <a asp-action="Create" class="btn btn-primary">New project</a>
+    </div>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="text-center text-muted py-5">
-        <p>You're not a member of any project yet.</p>
-        <a asp-action="Create" class="btn btn-outline-primary">Create your first project</a>
+    <div class="empty-state">
+        @if (archivedCount > 0)
+        {
+            <p>All your projects are archived. Tick "Show archived" to see them.</p>
+        }
+        else
+        {
+            <p>You're not a member of any project yet.</p>
+            <a asp-action="Create" class="btn btn-line">Create your first project</a>
+        }
     </div>
 }
 else
 {
-    <table class="table align-middle">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.Key)</th>
-                <th>@Html.DisplayNameFor(model => model.Name)</th>
-                <th>Tasks</th>
-                <th>Members</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td><span class="key">@item.Key</span></td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
+    <div class="project-grid">
+        @foreach (var item in Model)
+        {
+            var myRole = item.Members.First(m => m.UserId == userId).Role;
+            var isOwner = myRole == UserRoles.Owner;
+            var total = item.Tasks.Count;
+            var toDo = item.Tasks.Count(t => t.Status == TaskItemStatus.ToDo);
+            var inProgress = item.Tasks.Count(t => t.Status == TaskItemStatus.InProgress);
+            var inReview = item.Tasks.Count(t => t.Status == TaskItemStatus.InReview);
+            var done = item.Tasks.Count(t => t.Status == TaskItemStatus.Done);
+            var percent = total == 0 ? 0 : done * 100 / total;
+            var overdue = item.Tasks.Count(t => t.DueDate.HasValue && t.DueDate.Value.Date < DateTime.Today && t.Status != TaskItemStatus.Done);
+            var members = item.Members.OrderBy(m => m.Role).ThenBy(m => m.User.FirstName).ToList();
+
+            <div class="card project-card @(item.IsArchived ? "archived" : "")">
+                <div class="project-card-head">
+                    <span class="key-tile tile-@(item.Id % 4)">@item.Key</span>
+
+                    <div class="project-card-title">
+                        <h2>
+                            <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@item.Id">@item.Name</a>
+                            @if (item.Id == defaultProjectId)
+                            {
+                                <span class="star" title="Default project">&#9733;</span>
+                            }
+                        </h2>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <p class="project-card-desc">@item.Description</p>
+                        }
+                    </div>
+
+                    <div class="project-card-tools">
                         @if (item.IsArchived)
                         {
-                            <span class="pill pill-muted ms-1">Archived</span>
+                            <span class="pill pill-muted">Archived</span>
                         }
-                    </td>
-                    <td>@item.Tasks.Count</td>
-                    <td>@item.Members.Count</td>
-                    <td class="text-end">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        <span class="pill role-@myRole.CssName()">@myRole</span>
+
+                        <div class="dropdown">
+                            <button type="button" class="btn-dots" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More actions">&middot;&middot;&middot;</button>
+                            <ul class="dropdown-menu dropdown-menu-end card-menu">
+                                <li><a class="dropdown-item" asp-controller="Tasks" asp-action="Board" asp-route-projectId="@item.Id">Open board</a></li>
+                                <li><a class="dropdown-item" asp-action="Members" asp-route-id="@item.Id">Members</a></li>
+                                <li><a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">Details</a></li>
+                                @if (isOwner)
+                                {
+                                    <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">Edit</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-action="ToggleArchive" asp-route-id="@item.Id" method="post">
+                                            <input type="hidden" name="returnTo" value="projects" />
+                                            <button type="submit" class="dropdown-item">@(item.IsArchived ? "Unarchive" : "Archive")</button>
+                                        </form>
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-row">
+                    <span>@done of @total tasks done</span>
+                    <strong>@percent%</strong>
+                </div>
+
+                <div class="status-bar">
+                    @if (toDo > 0)
+                    {
+                        <span class="seg-todo" style="flex: @toDo"></span>
+                    }
+                    @if (inProgress > 0)
+                    {
+                        <span class="seg-inprogress" style="flex: @inProgress"></span>
+                    }
+                    @if (inReview > 0)
+                    {
+                        <span class="seg-inreview" style="flex: @inReview"></span>
+                    }
+                    @if (done > 0)
+                    {
+                        <span class="seg-done" style="flex: @done"></span>
+                    }
+                </div>
+
+                <ul class="status-legend">
+                    <li><span class="dot seg-todo"></span>@toDo to do</li>
+                    <li><span class="dot seg-inprogress"></span>@inProgress in progress</li>
+                    <li><span class="dot seg-inreview"></span>@inReview in review</li>
+                    <li><span class="dot seg-done"></span>@done done</li>
+                </ul>
+
+                <div class="project-card-foot">
+                    <div class="avatar-stack">
+                        @foreach (var member in members.Take(4))
+                        {
+                            <span class="avatar avatar-c@(member.UserId.Sum(ch => (int)ch) % 6)" title="@member.User.FullName">@member.User.Initials</span>
+                        }
+                    </div>
+                    <span class="member-count">@members.Count @(members.Count == 1 ? "member" : "members")</span>
+
+                    <div class="foot-end">
+                        @if (overdue > 0)
+                        {
+                            <span class="overdue-count">@overdue overdue</span>
+                        }
+                        <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@item.Id" class="open-board">Open board &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }

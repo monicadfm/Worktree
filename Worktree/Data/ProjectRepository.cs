@@ -86,6 +86,7 @@ namespace Worktree.Data
         {
             return _context.Projects
                 .Include(p => p.Members)
+                .ThenInclude(m => m.User)
                 .Include(p => p.Tasks)
                 .Where(p => p.Members.Any(m => m.UserId == userId))
                 .OrderBy(p => p.IsArchived)

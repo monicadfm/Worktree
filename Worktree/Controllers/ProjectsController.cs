@@ -22,15 +22,25 @@ namespace Worktree.Controllers
             _converterHelper = converterHelper;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool showArchived)
         {
-            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity!.Name!);
             if (user == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            return View(_projectRepository.GetAllForUser(user.Id));
+            var projects = await _projectRepository.GetAllForUser(user.Id).ToListAsync();
+            var active = projects.Where(p => !p.IsArchived).ToList();
+
+            ViewBag.UserId = user.Id;
+            ViewBag.DefaultProjectId = user.Profile?.DefaultProjectId;
+            ViewBag.ShowArchived = showArchived;
+            ViewBag.ActiveCount = active.Count;
+            ViewBag.OwnedCount = active.Count(p => p.Members.Any(m => m.UserId == user.Id && m.Role == UserRoles.Owner));
+            ViewBag.ArchivedCount = projects.Count - active.Count;
+
+            return View(showArchived ? projects : active);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -222,6 +232,11 @@ namespace Worktree.Controllers
             if (returnTo == "members")
             {
                 return RedirectToAction(nameof(Members), new { id = project.Id });
+            }
+
+            if (returnTo == "projects")
+            {
+                return RedirectToAction(nameof(Index), new { showArchived = project.IsArchived });
             }
 
             return RedirectToAction(nameof(Details), new { id = project.Id });
