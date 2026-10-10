@@ -61,7 +61,13 @@ namespace Worktree.Controllers
         {
             if (projectId == null)
             {
-                return new NotFoundViewResult("TaskNotFound");
+                var defaultId = await GetDefaultProjectIdAsync();
+                if (defaultId == null)
+                {
+                    return RedirectToAction("Index", "Projects");
+                }
+
+                return RedirectToAction(nameof(Board), new { projectId = defaultId });
             }
 
             var project = await _projectRepository.GetByIdAsync(projectId.Value);
@@ -452,6 +458,25 @@ namespace Worktree.Controllers
         {
             model.Members = await _projectRepository.GetComboMembersAsync(projectId);
             model.AvailableLabels = await _labelRepository.GetAllForProject(projectId).ToListAsync();
+        }
+
+        private async Task<int?> GetDefaultProjectIdAsync()
+        {
+            var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity!.Name!);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var defaultId = user.Profile?.DefaultProjectId;
+            if (defaultId.HasValue && await _projectRepository.IsMemberAsync(defaultId.Value, user.Id))
+            {
+                return defaultId;
+            }
+
+            var first = await _projectRepository.GetAllForUser(user.Id).FirstOrDefaultAsync();
+
+            return first?.Id;
         }
     }
 }
