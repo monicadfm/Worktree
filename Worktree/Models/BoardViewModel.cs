@@ -20,5 +20,7 @@ namespace Worktree.Models
         public IEnumerable<SelectListItem> Members { get; set; } = new List<SelectListItem>();
 
         public IEnumerable<SelectListItem> Labels { get; set; } = new List<SelectListItem>();
+
+        public BoardHeaderViewModel Header { get; set; } = null!;
     }
 }

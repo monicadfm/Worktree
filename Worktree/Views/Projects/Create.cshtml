@@ -10,6 +10,7 @@
 <div class="row">
     <div class="col-md-6">
         <form asp-action="Create">
+            <input type="hidden" name="returnTo" value="@ViewBag.ReturnTo" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="mb-3">
@@ -33,7 +34,14 @@
 
             <div class="mb-3">
                 <button type="submit" class="btn btn-primary">Create</button>
-                <a asp-action="Index" class="btn btn-success">Back to List</a>
+                @if (ViewBag.ReturnTo == "board")
+                {
+                    <a asp-controller="Tasks" asp-action="Board" class="btn btn-line">Back to Board</a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn btn-success">Back to List</a>
+                }
             </div>
         </form>
     </div>

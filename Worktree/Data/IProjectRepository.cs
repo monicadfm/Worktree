@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Worktree.Data.Entities;
+using Worktree.Models;
 
 namespace Worktree.Data
 {
@@ -32,5 +33,7 @@ namespace Worktree.Data
         Task<IEnumerable<SelectListItem>> GetComboMembersAsync(int projectId);
 
         Task<IEnumerable<SelectListItem>> GetComboProjectsForUserAsync(string userId);
+
+        Task<BoardHeaderViewModel> GetBoardHeaderAsync(Project project, string userId, string activeTab);
     }
 }

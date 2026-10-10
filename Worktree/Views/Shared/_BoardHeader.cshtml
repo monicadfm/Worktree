@@ -1,0 +1,67 @@
+﻿@model Worktree.Models.BoardHeaderViewModel
+
+@{
+    var project = Model.Project;
+}
+
+<div class="board-top">
+    <div class="dropdown project-picker">
+        <button type="button" class="project-picker-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="key">@project.Key</span>
+            <span class="project-name">@project.Name</span>
+            @if (project.Id == Model.DefaultProjectId)
+            {
+                <span class="star" title="Default project">&#9733;</span>
+            }
+        </button>
+
+        <ul class="dropdown-menu project-menu">
+            <li><h6 class="dropdown-header">Your projects</h6></li>
+            @foreach (var member in Model.MyProjects)
+            {
+                var isCurrent = member.ProjectId == project.Id;
+
+                <li>
+                    <a class="dropdown-item @(isCurrent ? "current" : "")"
+                       asp-controller="Tasks" asp-action="Board" asp-route-projectId="@member.ProjectId">
+                        <span class="key">@member.Project.Key</span>
+                        <span class="project-name">@member.Project.Name</span>
+                        @if (member.ProjectId == Model.DefaultProjectId)
+                        {
+                            <span class="star">&#9733;</span>
+                        }
+                        <span class="pill role-@member.Role.CssName() project-menu-role">@member.Role</span>
+                        <span class="project-menu-check">@(isCurrent ? "✓" : "")</span>
+                    </a>
+                </li>
+            }
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+                <a class="dropdown-item project-menu-new" asp-controller="Projects" asp-action="Create" asp-route-returnTo="board">+ New project</a>
+            </li>
+        </ul>
+    </div>
+
+    <a asp-controller="Projects" asp-action="Create" asp-route-returnTo="board" class="btn-square" title="New project" aria-label="New project">+</a>
+
+    <span class="pill role-@Model.Role.CssName()">@Model.Role</span>
+    @if (project.IsArchived)
+    {
+        <span class="pill pill-muted">Archived</span>
+    }
+</div>
+
+<nav class="board-tabs">
+    <a asp-controller="Tasks" asp-action="Board" asp-route-projectId="@project.Id"
+       class="board-tab @(Model.ActiveTab == "Tasks" ? "active" : "")">
+        Tasks <span class="tab-count">@Model.TaskCount</span>
+    </a>
+    <a asp-controller="Labels" asp-action="Index" asp-route-projectId="@project.Id"
+       class="board-tab @(Model.ActiveTab == "Labels" ? "active" : "")">
+        Labels <span class="tab-count">@Model.LabelCount</span>
+    </a>
+    <a asp-controller="Projects" asp-action="Members" asp-route-id="@project.Id"
+       class="board-tab @(Model.ActiveTab == "Members" ? "active" : "")">
+        Members <span class="tab-count">@Model.MemberCount</span>
+    </a>
+</nav>

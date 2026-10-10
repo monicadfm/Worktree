@@ -6,25 +6,14 @@
     var statuses = Enum.GetValues<TaskItemStatus>();
 }
 
-<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
-    <div>
-        <div class="key">@Model.Project.Key</div>
-        <h1 class="mb-0">
-            @Model.Project.Name
-            @if (Model.Project.IsArchived)
-            {
-                <span class="pill pill-muted align-middle">Archived</span>
-            }
-        </h1>
-    </div>
-    <div>
-        @if (!Model.Project.IsArchived)
-        {
-            <a asp-action="Create" asp-route-projectId="@Model.Project.Id" class="btn btn-primary">New Task</a>
-        }
-        <a asp-action="Index" asp-route-projectId="@Model.Project.Id" class="btn btn-secondary">List view</a>
-        <a asp-controller="Projects" asp-action="Details" asp-route-id="@Model.Project.Id" class="btn btn-success">Back to Project</a>
-    </div>
+<partial name="_BoardHeader" model="Model.Header" />
+
+<div class="d-flex justify-content-end gap-2 mb-3">
+    @if (!Model.Project.IsArchived)
+    {
+        <a asp-action="Create" asp-route-projectId="@Model.Project.Id" class="btn btn-primary">New Task</a>
+    }
+    <a asp-action="Index" asp-route-projectId="@Model.Project.Id" class="btn btn-line">List view</a>
 </div>
 
 <form asp-action="Board" method="get" class="row g-2 mb-3">

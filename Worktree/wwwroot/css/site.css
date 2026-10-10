@@ -450,3 +450,153 @@ body {
     border-color: var(--blue);
     color: var(--font);
 }
+
+.board-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.project-picker {
+    flex: 1 1 260px;
+    max-width: 380px;
+}
+
+.project-picker-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background-color: var(--card);
+    color: var(--font);
+    text-align: left;
+}
+
+.project-picker-btn:hover {
+    border-color: var(--blue);
+}
+
+.project-picker-btn::after {
+    margin-left: auto;
+}
+
+.project-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.star {
+    color: #d9a21b;
+}
+
+.project-menu {
+    width: 100%;
+    padding: 6px;
+    border-color: var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.project-menu .dropdown-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.project-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    border-radius: 6px;
+    color: var(--font);
+}
+
+.project-menu .dropdown-item:hover {
+    background-color: var(--page);
+}
+
+.project-menu .dropdown-item.current {
+    background-color: var(--blue-light);
+}
+
+.project-menu-role {
+    margin-left: auto;
+}
+
+.project-menu-check {
+    width: 14px;
+    font-weight: 700;
+    color: var(--blue);
+}
+
+.project-menu .project-menu-new {
+    font-weight: 600;
+    color: var(--blue);
+}
+
+.btn-square {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background-color: var(--card);
+    color: var(--blue);
+    font-size: 22px;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.btn-square:hover {
+    border-color: var(--blue);
+    color: var(--blue-dark);
+}
+
+.board-tabs {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.board-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.board-tab:hover {
+    color: var(--font);
+}
+
+.board-tab.active {
+    border-bottom-color: var(--blue);
+    font-weight: 600;
+    color: var(--font);
+}
+
+.tab-count {
+    padding: 0 7px;
+    border-radius: 999px;
+    background-color: var(--column);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}

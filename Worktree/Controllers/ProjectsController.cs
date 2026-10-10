@@ -57,15 +57,17 @@ namespace Worktree.Controllers
             return View(project);
         }
 
-        public IActionResult Create()
+        public IActionResult Create(string? returnTo)
         {
+            ViewBag.ReturnTo = returnTo;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProjectViewModel model)
+        public async Task<IActionResult> Create(ProjectViewModel model, string? returnTo)
         {
+            ViewBag.ReturnTo = returnTo;
             model.Key = model.Key.ToUpper();
             ModelState.Remove(nameof(model.Key));
             TryValidateModel(model);
@@ -92,6 +94,12 @@ namespace Worktree.Controllers
                 });
 
                 await _projectRepository.CreateAsync(project);
+
+                if (returnTo == "board")
+                {
+                    return RedirectToAction("Board", "Tasks", new { projectId = project.Id });
+                }
+
                 return RedirectToAction(nameof(Details), new { id = project.Id });
             }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Worktree.Data.Entities;
+using Worktree.Models;
 
 namespace Worktree.Data
 {
@@ -23,6 +24,33 @@ namespace Worktree.Data
         {
             return await _context.ProjectMembers
                 .CountAsync(m => m.ProjectId == projectId && m.Role == UserRoles.Owner);
+        }
+
+        public async Task<BoardHeaderViewModel> GetBoardHeaderAsync(Project project, string userId, string activeTab)
+        {
+            var myProjects = await _context.ProjectMembers
+                .Include(m => m.Project)
+                .Where(m => m.UserId == userId)
+                .OrderBy(m => m.Project.IsArchived)
+                .ThenBy(m => m.Project.Name)
+                .ToListAsync();
+
+            var defaultProjectId = await _context.UserProfiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.DefaultProjectId)
+                .FirstOrDefaultAsync();
+
+            return new BoardHeaderViewModel
+            {
+                Project = project,
+                Role = myProjects.First(m => m.ProjectId == project.Id).Role,
+                DefaultProjectId = defaultProjectId,
+                MyProjects = myProjects,
+                TaskCount = await _context.Tasks.CountAsync(t => t.ProjectId == project.Id),
+                LabelCount = await _context.Labels.CountAsync(l => l.ProjectId == project.Id),
+                MemberCount = await _context.ProjectMembers.CountAsync(m => m.ProjectId == project.Id),
+                ActiveTab = activeTab
+            };
         }
 
         public async Task<int> CountTasksAsync(int projectId)

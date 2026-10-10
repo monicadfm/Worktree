@@ -120,7 +120,8 @@ namespace Worktree.Controllers
                 LabelId = labelId,
                 Priority = priority,
                 Members = members,
-                Labels = labels
+                Labels = labels,
+                Header = await _projectRepository.GetBoardHeaderAsync(project, user.Id, "Tasks")
             };
 
             return View(model);
