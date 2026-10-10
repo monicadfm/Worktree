@@ -5,6 +5,7 @@
     var initials = string.Empty;
     string? avatarUrl = null;
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var boardPage = controller == "Tasks" || controller == "Labels" || ViewData["Nav"]?.ToString() == "Board";
     if (this.User.Identity!.IsAuthenticated)
     {
         var currentUser = await UserHelper.GetUserWithProfileAsync(this.User.Identity.Name!);
@@ -67,10 +68,10 @@
                         @if (this.User.Identity!.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link @(controller == "Projects" ? "active" : "")" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a>
+                                <a class="nav-link @(controller == "Projects" && !boardPage ? "active" : "")" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link @(controller == "Tasks" || controller == "Labels" ? "active" : "")" asp-area="" asp-controller="Tasks" asp-action="Board">Board</a>
+                                <a class="nav-link @(boardPage ? "active" : "")" asp-area="" asp-controller="Tasks" asp-action="Board">Board</a>
                             </li>
                         }
                     </ul>

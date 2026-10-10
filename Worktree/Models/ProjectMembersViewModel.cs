@@ -23,5 +23,8 @@ namespace Worktree.Models
 
         [ValidateNever]
         public string CurrentUserId { get; set; } = string.Empty;
+
+        [ValidateNever]
+        public BoardHeaderViewModel Header { get; set; } = null!;
     }
 }

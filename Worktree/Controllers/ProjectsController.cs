@@ -197,7 +197,7 @@ namespace Worktree.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleArchive(int id)
+        public async Task<IActionResult> ToggleArchive(int id, string? returnTo)
         {
             var project = await _projectRepository.GetByIdAsync(id);
             if (project == null)
@@ -218,6 +218,11 @@ namespace Worktree.Controllers
 
             project.IsArchived = !project.IsArchived;
             await _projectRepository.UpdateAsync(project);
+
+            if (returnTo == "members")
+            {
+                return RedirectToAction(nameof(Members), new { id = project.Id });
+            }
 
             return RedirectToAction(nameof(Details), new { id = project.Id });
         }
@@ -465,7 +470,8 @@ namespace Worktree.Controllers
                 ProjectId = project.Id,
                 Project = project,
                 IsOwner = await _projectRepository.IsOwnerAsync(project.Id, user.Id),
-                CurrentUserId = user.Id
+                CurrentUserId = user.Id,
+                Header = await _projectRepository.GetBoardHeaderAsync(project, user.Id, "Members")
             };
         }
     }
