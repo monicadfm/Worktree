@@ -30,13 +30,13 @@ namespace Worktree.Controllers
         {
             if (!this.User.Identity!.IsAuthenticated)
             {
-                return View();
+                return View("Landing");
             }
 
             var user = await _userHelper.GetUserWithProfileAsync(this.User.Identity.Name!);
             if (user == null)
             {
-                return View();
+                return View("Landing");
             }
 
             var defaultProjectId = user.Profile?.DefaultProjectId;

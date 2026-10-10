@@ -1,0 +1,183 @@
+﻿@{
+    ViewData["Title"] = "Plan, track and ship together";
+    Layout = "_LandingLayout";
+}
+
+<section class="hero">
+    <div class="landing-wrap hero-inner">
+        <div class="hero-text">
+            <span class="eyebrow">Projects &middot; Boards &middot; Teams</span>
+            <h1>
+                Plan the work.<br />
+                Track every task.<br />
+                <span class="hero-accent">Ship together.</span>
+            </h1>
+            <p class="hero-lead">
+                Worktree keeps your team's projects in one place: a board for every project, a clear assignee for every task,
+                and labels, priorities and due dates that show what matters next.
+            </p>
+            <div class="hero-actions">
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Create an account</a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-line">Sign in</a>
+            </div>
+            <p class="hero-note">Invite your team by email once you're in.</p>
+        </div>
+
+        <div class="mock-board" aria-hidden="true">
+            <div class="mock-head">
+                <span class="key">WEB</span>
+                <span class="mock-project">Website relaunch</span>
+                <span class="avatar-stack">
+                    <span class="avatar avatar-sm avatar-c0"></span>
+                    <span class="avatar avatar-sm avatar-c1"></span>
+                    <span class="avatar avatar-sm avatar-c2"></span>
+                </span>
+            </div>
+            <div class="mock-cols">
+                <div class="mock-col">
+                    <div class="mock-col-head"><span>To do</span><span class="tab-count">2</span></div>
+                    <div class="mock-card">
+                        <div class="mock-card-top">
+                            <span class="key">WEB-7</span>
+                            <span class="pill prio-urgent">Urgent</span>
+                        </div>
+                        <p class="mock-title">Fix the delete crash</p>
+                        <div class="mock-card-foot">
+                            <span class="label-tag" style="color: #B91C1C; border-color: #B91C1C">bug</span>
+                            <span class="avatar avatar-sm avatar-c1">RM</span>
+                        </div>
+                    </div>
+                    <div class="mock-card">
+                        <div class="mock-card-top">
+                            <span class="key">WEB-9</span>
+                            <span class="pill prio-medium">Medium</span>
+                        </div>
+                        <p class="mock-title">Write the README</p>
+                        <div class="mock-card-foot">
+                            <span class="label-tag" style="color: #475569; border-color: #475569">docs</span>
+                            <span class="avatar avatar-sm avatar-c0">AC</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mock-col">
+                    <div class="mock-col-head"><span>In progress</span><span class="tab-count">2</span></div>
+                    <div class="mock-card">
+                        <div class="mock-card-top">
+                            <span class="key">WEB-4</span>
+                            <span class="pill prio-high">High</span>
+                        </div>
+                        <p class="mock-title">Password reset by email</p>
+                        <div class="mock-card-foot">
+                            <span class="label-tag" style="color: #6D28D9; border-color: #6D28D9">backend</span>
+                            <span class="avatar avatar-sm avatar-c0">AC</span>
+                        </div>
+                    </div>
+                    <div class="mock-card">
+                        <div class="mock-card-top">
+                            <span class="key">WEB-6</span>
+                            <span class="pill prio-high">High</span>
+                        </div>
+                        <p class="mock-title">Project members page</p>
+                        <div class="mock-card-foot">
+                            <span class="label-tag" style="color: #2457D6; border-color: #2457D6">frontend</span>
+                            <span class="avatar avatar-sm avatar-c2">IL</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mock-col">
+                    <div class="mock-col-head"><span>Done</span><span class="tab-count">1</span></div>
+                    <div class="mock-card">
+                        <div class="mock-card-top">
+                            <span class="key">WEB-2</span>
+                            <span class="pill prio-low">Low</span>
+                        </div>
+                        <p class="mock-title">Design the board layout</p>
+                        <div class="mock-card-foot">
+                            <span class="label-tag" style="color: #0F766E; border-color: #0F766E">design</span>
+                            <span class="avatar avatar-sm avatar-c2">IL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="landing-wrap">
+        <h2 class="section-title">Everything a small team needs, nothing it doesn't</h2>
+        <p class="section-sub">Simple enough to start in a minute, structured enough to keep a real project on track.</p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <span class="feature-icon">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="4.5" height="13" rx="1" /><rect x="9.75" y="4" width="4.5" height="8" rx="1" /><rect x="16.5" y="4" width="4.5" height="16" rx="1" /></svg>
+                </span>
+                <h3>Kanban boards</h3>
+                <p>To do, in progress, in review, done. Move tasks along and see where everything stands at a glance.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" /><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3c2 .8 3.5 2.8 3.5 5.7" /></svg>
+                </span>
+                <h3>Projects and roles</h3>
+                <p>Each project has Owners and Members. Owners manage the team; everyone works on tasks. Only members can see a project.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" /><circle cx="7.5" cy="7.5" r="1.5" /></svg>
+                </span>
+                <h3>Labels and priorities</h3>
+                <p>Colour labels per project plus Low to Urgent priorities, so the important work stands out on the board.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">
+                    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+                </span>
+                <h3>Due dates and overdue work</h3>
+                <p>Give tasks a due date and your dashboard flags anything overdue, so nothing slips past without anyone noticing.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="steps">
+    <div class="landing-wrap">
+        <h2 class="section-title">Up and running in three steps</h2>
+
+        <ol class="step-list">
+            <li>
+                <span class="step-num">1</span>
+                <div>
+                    <h3>Create a project</h3>
+                    <p>Give it a name and a short key like WEB. Tasks are numbered WEB-1, WEB-2...</p>
+                </div>
+            </li>
+            <li>
+                <span class="step-num">2</span>
+                <div>
+                    <h3>Invite your team</h3>
+                    <p>Add teammates by email and choose who is an Owner and who is a Member.</p>
+                </div>
+            </li>
+            <li>
+                <span class="step-num">3</span>
+                <div>
+                    <h3>Fill the board</h3>
+                    <p>Add tasks, assign them, label them, and move them across the columns.</p>
+                </div>
+            </li>
+        </ol>
+
+        <div class="cta">
+            <div>
+                <h2>Ready to get organised?</h2>
+                <p>Create your account and your first board in under a minute.</p>
+            </div>
+            <div class="cta-actions">
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Get started</a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-cta-line">Sign in</a>
+            </div>
+        </div>
+    </div>
+</section>
