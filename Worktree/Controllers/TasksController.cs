@@ -130,6 +130,48 @@ namespace Worktree.Controllers
         // POST
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuickAdd(int projectId, string? title)
+        {
+            var project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity!.Name!);
+            if (user == null || !await _projectRepository.IsMemberAsync(project.Id, user.Id))
+            {
+                return new NotFoundViewResult("TaskNotFound");
+            }
+
+            if (project.IsArchived)
+            {
+                return RedirectToAction(nameof(Board), new { projectId });
+            }
+
+            title = title?.Trim();
+            if (string.IsNullOrEmpty(title) || title.Length < 3 || title.Length > 120)
+            {
+                TempData["QuickAddError"] = "The Title must be between 3 and 120 characters.";
+                return RedirectToAction(nameof(Board), new { projectId });
+            }
+
+            var task = new TaskItem
+            {
+                ProjectId = project.Id,
+                Title = title,
+                Status = TaskItemStatus.ToDo,
+                Priority = TaskItemPrio.Medium,
+                CreatedById = user.Id
+            };
+
+            await _taskRepository.CreateTaskAsync(task);
+            return RedirectToAction(nameof(Board), new { projectId });
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Move(int id, TaskItemStatus status, string? returnUrl)
         {
             var task = await _taskRepository.GetByIdAsync(id);
