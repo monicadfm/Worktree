@@ -2,14 +2,26 @@
 
 <input type="hidden" asp-for="ProjectId" />
 
-<div class="mb-3">
-    <label asp-for="Name" class="form-label"></label>
-    <input asp-for="Name" class="form-control" maxlength="30" placeholder="e.g. backend" />
-    <span asp-validation-for="Name" class="text-warning"></span>
-</div>
+<div class="label-form-grid">
+    <div>
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" maxlength="30" placeholder="e.g. backend" autocomplete="off" />
+        <span asp-validation-for="Name" class="field-error"></span>
+    </div>
 
-<div class="mb-3">
-    <label asp-for="Color" class="form-label"></label>
-    <input asp-for="Color" type="color" class="form-control form-control-color" />
-    <span asp-validation-for="Color" class="text-warning"></span>
+    <div>
+        <label asp-for="Color" class="form-label">Colour</label>
+        <div class="color-field">
+            <input type="color" id="label-color-picker" value="@Model.Color" aria-label="Pick a colour" />
+            <input asp-for="Color" class="form-control hex-input" maxlength="7" autocomplete="off" />
+        </div>
+        <span asp-validation-for="Color" class="field-error"></span>
+    </div>
+
+    <div>
+        <span class="form-label d-block">Preview</span>
+        <div class="preview-box">
+            <span id="label-preview" class="label-tag" style="color: @Model.Color; border-color: @Model.Color">@(string.IsNullOrWhiteSpace(Model.Name) ? "label" : Model.Name)</span>
+        </div>
+    </div>
 </div>

@@ -1962,3 +1962,65 @@ body {
 .form-footer .push-right {
     margin-left: auto;
 }
+
+.form-card-wide {
+    max-width: 820px;
+}
+
+.form-stack .form-select {
+    height: 44px;
+}
+
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.assignee-field {
+    max-width: 380px;
+}
+
+.label-checks {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.label-check input {
+    display: none;
+}
+
+.label-check span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.label-check .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.label-check input:checked + span {
+    border-color: var(--blue);
+    background-color: var(--blue-light);
+}
+
+.manage-link {
+    font-size: 13px;
+    text-decoration: none;
+}
+
+@media (max-width: 700px) {
+    .form-grid-3 {
+        grid-template-columns: 1fr;
+    }
+}

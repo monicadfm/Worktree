@@ -1,26 +1,32 @@
 ﻿@model Worktree.Models.LabelViewModel
 
 @{
-    ViewData["Title"] = "Edit Label";
+    ViewData["Title"] = "Edit label";
 }
 
-<h1><span class="badge bg-secondary align-middle">@Model.ProjectKey</span> Edit Label</h1>
-<hr />
+<a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="back-link">&larr; Back to labels</a>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-
-            <partial name="_LabelForm" />
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="btn btn-success">Back to List</a>
-            </div>
-        </form>
+<div class="card form-card">
+    <div class="form-card-head">
+        <span class="key-tile tile-@(Model.ProjectId % 4)">@Model.ProjectKey</span>
+        <div>
+            <h1>Edit label</h1>
+            <p>This label only exists in @Model.ProjectKey.</p>
+        </div>
     </div>
+
+    <form asp-action="Edit" class="form-stack">
+        <div asp-validation-summary="ModelOnly" class="auth-error"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <partial name="_LabelForm" />
+
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="btn btn-line">Cancel</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-line-danger push-right">Delete label</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

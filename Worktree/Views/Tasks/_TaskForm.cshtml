@@ -2,56 +2,52 @@
 
 <input type="hidden" asp-for="ProjectId" />
 
-<div class="mb-3">
+<div>
     <label asp-for="Title" class="form-label"></label>
-    <input asp-for="Title" class="form-control" />
-    <span asp-validation-for="Title" class="text-warning"></span>
+    <input asp-for="Title" class="form-control" placeholder="What needs doing?" />
+    <span asp-validation-for="Title" class="field-error"></span>
 </div>
 
-<div class="mb-3">
-    <label asp-for="Description" class="form-label"></label>
+<div>
+    <label asp-for="Description" class="form-label">Description <span class="optional">(optional)</span></label>
     <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-    <span asp-validation-for="Description" class="text-warning"></span>
+    <span asp-validation-for="Description" class="field-error"></span>
 </div>
 
-<div class="row">
-    <div class="col-md-6 mb-3">
+<div class="form-grid-3">
+    <div>
         <label asp-for="Status" class="form-label"></label>
         <select asp-for="Status" asp-items="Html.GetEnumSelectList<TaskItemStatus>()" class="form-select"></select>
     </div>
-    <div class="col-md-6 mb-3">
+    <div>
         <label asp-for="Priority" class="form-label"></label>
         <select asp-for="Priority" asp-items="Html.GetEnumSelectList<TaskItemPrio>()" class="form-select"></select>
     </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label asp-for="AssigneeId" class="form-label"></label>
-        <select asp-for="AssigneeId" asp-items="Model.Members" class="form-select"></select>
-        <span asp-validation-for="AssigneeId" class="text-warning"></span>
-    </div>
-    <div class="col-md-6 mb-3">
-        <label asp-for="DueDate" class="form-label"></label>
+    <div>
+        <label asp-for="DueDate" class="form-label">Due date <span class="optional">(optional)</span></label>
         <input asp-for="DueDate" class="form-control" />
-        <span asp-validation-for="DueDate" class="text-warning"></span>
+        <span asp-validation-for="DueDate" class="field-error"></span>
     </div>
 </div>
 
-@if (Model.AvailableLabels.Any())
-{
-    <div class="mb-3">
-        <label class="form-label d-block">Labels</label>
+<div class="assignee-field">
+    <label asp-for="AssigneeId" class="form-label"></label>
+    <select asp-for="AssigneeId" asp-items="Model.Members" class="form-select"></select>
+    <span class="field-hint">Only members of @Model.ProjectKey can be assigned.</span>
+    <span asp-validation-for="AssigneeId" class="field-error"></span>
+</div>
+
+<div>
+    <span class="form-label d-block">Labels</span>
+    <div class="label-checks">
         @foreach (var label in Model.AvailableLabels)
         {
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="SelectedLabelIds"
-                       value="@label.Id" id="label-@label.Id"
+            <label class="label-check">
+                <input type="checkbox" name="SelectedLabelIds" value="@label.Id"
                        checked="@Model.SelectedLabelIds.Contains(label.Id)" />
-                <label class="form-check-label" for="label-@label.Id">
-                    <span class="badge" style="background-color: @label.Color">@label.Name</span>
-                </label>
-            </div>
+                <span><i class="swatch" style="background-color: @label.Color"></i>@label.Name</span>
+            </label>
         }
+        <a asp-controller="Labels" asp-action="Index" asp-route-projectId="@Model.ProjectId" class="manage-link">Manage labels</a>
     </div>
-}
+</div>

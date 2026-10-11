@@ -1,25 +1,30 @@
 ﻿@model Worktree.Models.TaskViewModel
 
 @{
-    ViewData["Title"] = "New Task";
+    ViewData["Title"] = "New task";
 }
 
-<h1><span class="badge bg-secondary align-middle">@Model.ProjectKey</span> New Task</h1>
-<hr />
+<a asp-action="Board" asp-route-projectId="@Model.ProjectId" class="back-link">&larr; Back to board</a>
 
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <partial name="_TaskForm" />
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Create</button>
-                <a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="btn btn-success">Back to List</a>
-            </div>
-        </form>
+<div class="card form-card form-card-wide">
+    <div class="form-card-head">
+        <span class="key-tile tile-@(Model.ProjectId % 4)">@Model.ProjectKey</span>
+        <div>
+            <h1>New task</h1>
+            <p>Add a task to @Model.ProjectKey.</p>
+        </div>
     </div>
+
+    <form asp-action="Create" class="form-stack">
+        <div asp-validation-summary="ModelOnly" class="auth-error"></div>
+
+        <partial name="_TaskForm" />
+
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary">Create task</button>
+            <a asp-action="Board" asp-route-projectId="@Model.ProjectId" class="btn btn-line">Cancel</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

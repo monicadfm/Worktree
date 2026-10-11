@@ -1,25 +1,30 @@
 ﻿@model Worktree.Models.LabelViewModel
 
 @{
-    ViewData["Title"] = "New Label";
+    ViewData["Title"] = "New label";
 }
 
-<h1><span class="badge bg-secondary align-middle">@Model.ProjectKey</span> New Label</h1>
-<hr />
+<a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="back-link">&larr; Back to labels</a>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <partial name="_LabelForm" />
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Create</button>
-                <a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="btn btn-success">Back to List</a>
-            </div>
-        </form>
+<div class="card form-card">
+    <div class="form-card-head">
+        <span class="key-tile tile-@(Model.ProjectId % 4)">@Model.ProjectKey</span>
+        <div>
+            <h1>New label</h1>
+            <p>Each name can be used once in @Model.ProjectKey.</p>
+        </div>
     </div>
+
+    <form asp-action="Create" class="form-stack">
+        <div asp-validation-summary="ModelOnly" class="auth-error"></div>
+
+        <partial name="_LabelForm" />
+
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary">Add label</button>
+            <a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="btn btn-line">Cancel</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
