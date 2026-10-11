@@ -3,77 +3,63 @@
 @{
     var project = (Project)ViewBag.Project;
     ViewData["Title"] = project.Name + " - Tasks";
+    var count = Model.Count();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>
-        <span class="key align-middle">@project.Key</span> Tasks
-        @if (project.IsArchived)
-        {
-            <span class="pill pill-muted align-middle">Archived</span>
-        }
-    </h1>
-    <div>
+<a asp-action="Board" asp-route-projectId="@project.Id" class="back-link">&larr; Back to board</a>
+
+<div class="page-head">
+    <div class="form-card-head mb-0">
+        <span class="key-tile tile-@(project.Id % 4)">@project.Key</span>
+        <div>
+            <h1>All tasks</h1>
+            <p>@project.Name &middot; @count task@(count == 1 ? "" : "s")</p>
+        </div>
+    </div>
+    <div class="page-head-actions">
+        <a asp-action="Board" asp-route-projectId="@project.Id" class="btn btn-line">Board view</a>
         @if (!project.IsArchived)
         {
-            <a asp-action="Create" asp-route-projectId="@project.Id" class="btn btn-primary">New Task</a>
+            <a asp-action="Create" asp-route-projectId="@project.Id" class="btn btn-primary">New task</a>
         }
-        <a asp-action="Board" asp-route-projectId="@project.Id" class="btn btn-secondary">Board view</a>
-
-        <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-success">Back to Project</a>
     </div>
 </div>
 
 @if (project.IsArchived)
 {
-    <div class="alert alert-secondary">This project is archived. Tasks are read-only.</div>
+    <p class="note">This project is archived, so its tasks are read-only.</p>
 }
 
 @if (!Model.Any())
 {
-    <div class="text-center text-muted py-5">
-        <p>No tasks yet.</p>
-    </div>
+    <div class="empty-state">No tasks yet.</div>
 }
 else
 {
-    <table class="table align-middle">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Assignee</th>
-                <th>Due</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                var overdue = item.DueDate.HasValue && item.DueDate.Value.Date < DateTime.Today && item.Status != TaskItemStatus.Done;
+    <div class="card panel">
+        @foreach (var item in Model)
+        {
+            var overdue = item.DueDate.HasValue && item.DueDate.Value.Date < DateTime.Today && item.Status != TaskItemStatus.Done;
 
-                <tr>
-                    <td class="key text-nowrap">@project.Key-@item.Number</td>
-                    <td>
-                        @item.Title
-                        @foreach (var tl in item.TaskLabels)
-                        {
-                            <span class="label-tag ms-1" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
-                        }
-                    </td>
-                    <td><span class="pill status-@item.Status.CssName()">@item.Status.GetDisplayName()</span></td>
-                    <td><span class="pill prio-@item.Priority.CssName()">@item.Priority</span></td>
-                    <td>@(item.Assignee?.FullName ?? "—")</td>
-                    <td class="@(overdue ? "text-danger fw-bold" : "")">
-                        @(item.DueDate?.ToString("dd/MM/yyyy") ?? "—")
-                    </td>
-                    <td class="text-end">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            <a asp-action="Details" asp-route-id="@item.Id" class="task-row">
+                <span class="key task-row-key">@project.Key-@item.Number</span>
+                <span class="task-row-title">
+                    @item.Title
+                    @foreach (var tl in item.TaskLabels)
+                    {
+                        <span class="label-tag ms-1" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
+                    }
+                </span>
+                <span class="pill prio-@item.Priority.CssName()">@item.Priority</span>
+                <span class="pill status-@item.Status.CssName()">@item.Status.GetDisplayName()</span>
+                @if (item.Assignee != null)
+                {
+                    <span class="avatar avatar-sm avatar-c@(item.Assignee.Id.Sum(ch => (int)ch) % 6)" title="@item.Assignee.FullName">@item.Assignee.Initials</span>
+                }
+                <small class="task-row-due @(overdue ? "text-danger" : "text-muted")">
+                    @(item.DueDate.HasValue ? (overdue ? "Overdue · " : "") + item.DueDate.Value.ToString("dd/MM") : "—")
+                </small>
+            </a>
+        }
+    </div>
 }
