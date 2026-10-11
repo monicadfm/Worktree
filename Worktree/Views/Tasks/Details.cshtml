@@ -3,127 +3,158 @@
 @{
     ViewData["Title"] = Model.Project.Key + "-" + Model.Number;
     var overdue = Model.DueDate.HasValue && Model.DueDate.Value.Date < DateTime.Today && Model.Status != TaskItemStatus.Done;
+    var canEdit = !Model.Project.IsArchived;
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
-<div class="mb-3">
-    <span class="key">@Model.Project.Key-@Model.Number</span>
-    <h1 class="d-inline align-middle ms-2">@Model.Title</h1>
-</div>
+<a asp-action="Board" asp-route-projectId="@Model.ProjectId" class="back-link">&larr; Back to board</a>
 
-<div class="row">
-    <div class="col-md-8">
-        <h5>Description</h5>
-        <p class="text-muted" style="white-space: pre-line">@(string.IsNullOrEmpty(Model.Description) ? "No description." : Model.Description)</p>
-
-        <h5 class="mt-3">Labels</h5>
-        <p>
-            @if (!Model.TaskLabels.Any())
-            {
-                <span class="text-muted">No labels.</span>
-            }
-            @foreach (var tl in Model.TaskLabels)
-            {
-                <span class="label-tag me-1" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
-            }
-        </p>
-    </div>
-
-    <div class="col-md-4">
-        <dl class="row">
-            <dt class="col-5">Status</dt>
-            <dd class="col-7"><span class="pill status-@Model.Status.CssName()">@Model.Status.GetDisplayName()</span></dd>
-
-            <dt class="col-5">Priority</dt>
-            <dd class="col-7"><span class="pill prio-@Model.Priority.CssName()">@Model.Priority</span></dd>
-
-            <dt class="col-5">Assignee</dt>
-            <dd class="col-7">@(Model.Assignee?.FullName ?? "Unassigned")</dd>
-
-            <dt class="col-5">Due Date</dt>
-            <dd class="col-7 @(overdue ? "text-danger fw-bold" : "")">
-                @(Model.DueDate?.ToString("dd/MM/yyyy") ?? "—")
-                @if (overdue)
-                {
-                    <span class="pill prio-urgent">Overdue</span>
-                }
-            </dd>
-
-            <dt class="col-5">Created by</dt>
-            <dd class="col-7">@Model.CreatedBy.FullName</dd>
-
-            <dt class="col-5">Created</dt>
-            <dd class="col-7">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
-
-            <dt class="col-5">Updated</dt>
-            <dd class="col-7">@Model.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
-        </dl>
-    </div>
-</div>
-
-<div class="mt-3">
-    @if (!Model.Project.IsArchived)
-    {
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-
-        @if (ViewBag.CanDelete == true)
-        {
-            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
-        }
-    }
-    <a asp-action="Index" asp-route-projectId="@Model.ProjectId" class="btn btn-success">Back to List</a>
-</div>
-
-<hr class="my-4" />
-
-<h4>Comments <span class="text-muted fs-6">(@Model.Comments.Count)</span></h4>
-
-@if (!Model.Comments.Any())
-{
-    <p class="text-muted">No comments yet.</p>
-}
-
-@foreach (var comment in Model.Comments.OrderBy(c => c.CreatedAt))
-{
-    var isMine = comment.CreatedById == (string)ViewBag.CurrentUserId;
-
-    <div class="card mb-2">
-        <div class="card-body py-2">
-            <div class="d-flex justify-content-between">
+<div class="row g-3 align-items-start">
+    <div class="col-lg-8">
+        <div class="card panel">
+            <div class="form-card-head">
+                <span class="key-tile tile-@(Model.ProjectId % 4)">@Model.Project.Key</span>
                 <div>
-                    <strong>@comment.CreatedBy.FullName</strong>
-                    <small class="text-muted ms-2">
-                        @comment.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-                        @if (comment.EditedAt.HasValue)
-                        {
-                            <span>(edited)</span>
-                        }
-                    </small>
+                    <h1>@Model.Title</h1>
+                    <p><span class="key">@Model.Project.Key-@Model.Number</span> &middot; reported by @Model.CreatedBy.FullName</p>
                 </div>
-
-                @if (isMine && !Model.Project.IsArchived)
-                {
-                    <div>
-                        <a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-link btn-sm p-0 me-2">Edit</a>
-                        <form asp-controller="Comments" asp-action="Delete" asp-route-id="@comment.Id" method="post" class="d-inline"
-                              onsubmit="return confirm('Delete this comment?');">
-                            <button type="submit" class="btn btn-link btn-sm p-0 text-danger">Delete</button>
-                        </form>
-                    </div>
-                }
+                <span class="pill prio-@Model.Priority.CssName() ms-auto">@Model.Priority</span>
             </div>
-            <p class="mb-0 mt-1" style="white-space: pre-line">@comment.Body</p>
+
+            <p style="white-space: pre-line">@(string.IsNullOrEmpty(Model.Description) ? "No description." : Model.Description)</p>
+
+            @if (canEdit)
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var status in Enum.GetValues<TaskItemStatus>())
+                    {
+                        <form asp-action="Move" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="status" value="@status" />
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                            <button type="submit" class="btn btn-sm @(status == Model.Status ? "btn-primary" : "btn-line")">@status.GetDisplayName()</button>
+                        </form>
+                    }
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-line btn-sm ms-auto">Edit task</a>
+                </div>
+            }
+        </div>
+
+        <div class="card list-card mt-3">
+            <h2 class="pt-3">Comments <span class="tab-count">@Model.Comments.Count</span></h2>
+
+            @if (!Model.Comments.Any())
+            {
+                <p class="label-usage pb-2">No comments yet.</p>
+            }
+
+            @foreach (var comment in Model.Comments.OrderBy(c => c.CreatedAt))
+            {
+                var isMine = comment.CreatedById == (string)ViewBag.CurrentUserId;
+
+                <div class="member-row">
+                    <span class="avatar avatar-md avatar-c@(comment.CreatedById.Sum(ch => (int)ch) % 6)">@comment.CreatedBy.Initials</span>
+
+                    <div class="member-info">
+                        <span class="member-name">@comment.CreatedBy.FullName</span>
+                        <span class="member-email">
+                            @comment.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")@(comment.EditedAt.HasValue ? " · edited" : "")
+                        </span>
+                        <p class="mb-0 mt-1" style="white-space: pre-line">@comment.Body</p>
+                    </div>
+
+                    @if (isMine && canEdit)
+                    {
+                        <div class="member-actions">
+                            <a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-line btn-sm">Edit</a>
+                            <form asp-controller="Comments" asp-action="Delete" asp-route-id="@comment.Id" method="post"
+                                  onsubmit="return confirm('Delete this comment?');">
+                                <button type="submit" class="btn btn-line-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (canEdit)
+            {
+                <form asp-controller="Comments" asp-action="Create" method="post" class="add-member">
+                    <input type="hidden" name="TaskItemId" value="@Model.Id" />
+                    <input type="text" name="Body" class="form-control" maxlength="2000" required placeholder="Write a comment..." />
+                    <button type="submit" class="btn btn-primary">Comment</button>
+                </form>
+            }
         </div>
     </div>
-}
 
-@if (!Model.Project.IsArchived)
-{
-    <form asp-controller="Comments" asp-action="Create" method="post" class="mt-3">
-        <input type="hidden" name="TaskItemId" value="@Model.Id" />
-        <div class="mb-2">
-            <textarea name="Body" class="form-control" rows="3" maxlength="2000" required
-                      placeholder="Write a comment..."></textarea>
+    <div class="col-lg-4">
+        <div class="card list-card">
+            <div class="label-row">
+                <span class="label-usage">Status</span>
+                <div class="label-row-actions"><span class="pill status-@Model.Status.CssName()">@Model.Status.GetDisplayName()</span></div>
+            </div>
+            <div class="label-row">
+                <span class="label-usage">Assignee</span>
+                <div class="label-row-actions">
+                    @if (Model.Assignee != null)
+                    {
+                        <span class="avatar avatar-sm avatar-c@(Model.Assignee.Id.Sum(ch => (int)ch) % 6)">@Model.Assignee.Initials</span>
+                        @Model.Assignee.FullName
+                    }
+                    else
+                    {
+                        <span class="label-usage">Unassigned</span>
+                    }
+                </div>
+            </div>
+            <div class="label-row">
+                <span class="label-usage">Reporter</span>
+                <div class="label-row-actions">
+                    <span class="avatar avatar-sm avatar-c@(Model.CreatedBy.Id.Sum(ch => (int)ch) % 6)">@Model.CreatedBy.Initials</span>
+                    @Model.CreatedBy.FullName
+                </div>
+            </div>
+            <div class="label-row">
+                <span class="label-usage">Due</span>
+                <div class="label-row-actions">
+                    @if (Model.DueDate.HasValue)
+                    {
+                        <span class="due @(overdue ? "overdue" : "")">@(overdue ? "Overdue · " : "")@Model.DueDate.Value.ToString("dd/MM/yyyy")</span>
+                    }
+                    else
+                    {
+                        <span class="label-usage">&mdash;</span>
+                    }
+                </div>
+            </div>
+            <div class="label-row">
+                <span class="label-usage">Labels</span>
+                <div class="label-row-actions flex-wrap justify-content-end">
+                    @if (!Model.TaskLabels.Any())
+                    {
+                        <span class="label-usage">None</span>
+                    }
+                    @foreach (var tl in Model.TaskLabels)
+                    {
+                        <span class="label-tag" style="color: @tl.Label.Color; border-color: @tl.Label.Color">@tl.Label.Name</span>
+                    }
+                </div>
+            </div>
+            <div class="label-row">
+                <span class="label-usage">Created</span>
+                <div class="label-row-actions">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="label-row">
+                <span class="label-usage">Updated</span>
+                <div class="label-row-actions">@Model.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+
+            @if (canEdit && ViewBag.CanDelete == true)
+            {
+                <div class="label-row">
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-line-danger btn-sm">Delete task</a>
+                </div>
+            }
         </div>
-        <button type="submit" class="btn btn-primary">Add comment</button>
-    </form>
-}
+    </div>
+</div>
