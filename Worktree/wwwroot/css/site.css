@@ -2024,3 +2024,26 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.error-page {
+    max-width: 560px;
+    margin: 40px auto;
+    padding: 48px 24px;
+}
+
+.error-code {
+    font-family: var(--mono-font);
+    font-size: 64px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--input-border);
+}
+
+.error-page h1 {
+    margin: 16px 0 8px;
+    color: var(--font);
+}
+
+.error-page p {
+    margin-bottom: 24px;
+}

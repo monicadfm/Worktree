@@ -1,0 +1,12 @@
+﻿<div class="empty-state error-page">
+    <div class="error-code">@ViewData["Code"]</div>
+    <h1>@ViewData["Heading"]</h1>
+    <p>@ViewData["Text"]</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to dashboard</a>
+        @if (this.User.Identity!.IsAuthenticated)
+        {
+            <a asp-controller="Projects" asp-action="Index" class="btn btn-line">Your projects</a>
+        }
+    </div>
+</div>

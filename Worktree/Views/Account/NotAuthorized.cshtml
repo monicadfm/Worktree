@@ -1,9 +1,8 @@
 ﻿@{
-    ViewData["Title"] = "Not Authorized";
+    ViewData["Title"] = "Not allowed";
+    ViewData["Code"] = "403";
+    ViewData["Heading"] = "Not allowed";
+    ViewData["Text"] = "You don't have permission to do that. Ask a project Owner if you need access.";
 }
 
-<div class="text-center py-5">
-    <h1 class="display-1 fw-bold">403</h1>
-    <h2 class="mb-3">Not this time, access forbidden!</h2>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to home</a>
-</div>
+<partial name="_ErrorCard" />
