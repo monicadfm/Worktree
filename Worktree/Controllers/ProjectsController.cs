@@ -88,9 +88,7 @@ namespace Worktree.Controllers
                 return new NotFoundViewResult("ProjectNotFound");
             }
 
-            ViewBag.IsOwner = await _projectRepository.IsOwnerAsync(project.Id, user.Id);
-
-            return View(project);
+            return RedirectToAction("Board", "Tasks", new { projectId = project.Id });
         }
 
         public IActionResult Create(string? returnTo)
