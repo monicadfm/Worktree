@@ -2,24 +2,35 @@
 
 @{
     ViewData["Title"] = "Delete Task";
+    var commentCount = Model.Comments.Count;
 }
 
-<h1>Delete Task</h1>
-<hr />
+<a asp-action="Details" asp-route-id="@Model.Id" class="back-link">&larr; Back to task</a>
 
-<h3>Are you sure you want to delete this task?</h3>
+<div class="card form-card">
+    <div class="form-card-head">
+        <span class="key-tile tile-@(Model.ProjectId % 4)">@Model.Project.Key</span>
+        <div>
+            <h1>Delete @Model.Project.Key-@Model.Number?</h1>
+            <p>@Model.Title</p>
+        </div>
+    </div>
 
-<dl class="row mt-3">
-    <dt class="col-sm-2">Task</dt>
-    <dd class="col-sm-10"><span class="badge bg-secondary">@Model.Project.Key-@Model.Number</span> @Model.Title</dd>
-    <dt class="col-sm-2">Status</dt>
-    <dd class="col-sm-10">@Model.Status.GetDisplayName()</dd>
-</dl>
+    <form asp-action="Delete" class="form-stack">
+        <input type="hidden" asp-for="Id" />
 
-<p class="text-muted">Its comments and labels will also be removed. This can't be undone.</p>
+        <div class="auth-error">
+            Delete @Model.Project.Key-@Model.Number@(commentCount > 0 ? $" and its {commentCount} comment{(commentCount == 1 ? "" : "s")}" : "")? This can't be undone.
+        </div>
 
-<form asp-action="Delete">
-    <input type="hidden" asp-for="Id" />
-    <input type="submit" value="Delete" class="btn btn-danger" />
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-success">Back</a>
-</form>
+        <div class="d-flex flex-wrap gap-2">
+            <span class="pill status-@Model.Status.CssName()">@Model.Status.GetDisplayName()</span>
+            <span class="pill prio-@Model.Priority.CssName()">@Model.Priority</span>
+        </div>
+
+        <div class="form-footer danger-actions">
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-line">Keep it</a>
+        </div>
+    </form>
+</div>
