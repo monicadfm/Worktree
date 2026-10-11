@@ -325,6 +325,9 @@ namespace Worktree.Controllers
                 if (response.Succeeded)
                 {
                     ViewBag.UserMessage = "User updated!";
+                    ModelState.Remove(nameof(model.AvatarUrl));
+                    ModelState.Remove(nameof(model.RemoveAvatar));
+                    model.RemoveAvatar = false;
                 }
                 else
                 {
