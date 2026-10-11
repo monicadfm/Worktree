@@ -1,0 +1,10 @@
+﻿@model Worktree.Data.Entities.User
+
+@if (!string.IsNullOrEmpty(Model.Profile?.AvatarUrl))
+{
+    <img src="@Model.Profile.AvatarUrl" alt="" class="avatar @ViewData["Size"]" title="@Model.FullName" referrerpolicy="no-referrer" />
+}
+else
+{
+    <span class="avatar @ViewData["Size"] avatar-c@(Model.Id.Sum(ch => (int)ch) % 6)" title="@Model.FullName">@Model.Initials</span>
+}

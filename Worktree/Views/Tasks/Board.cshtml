@@ -126,7 +126,7 @@
                         <span class="d-flex align-items-center gap-2">
                             @if (task.Assignee != null)
                             {
-                                <span class="avatar avatar-sm" title="@task.Assignee.FullName">@task.Assignee.Initials</span>
+                                @await Html.PartialAsync("_Avatar", task.Assignee, new ViewDataDictionary(ViewData) { { "Size", "avatar-sm" } })
                             }
                             @if (task.DueDate.HasValue)
                             {

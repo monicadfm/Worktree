@@ -20,7 +20,7 @@
         var isMe = member.UserId == Model.CurrentUserId;
 
         <div class="member-row">
-            <span class="avatar avatar-md">@member.User.Initials</span>
+            @await Html.PartialAsync("_Avatar", member.User, new ViewDataDictionary(ViewData) { { "Size", "avatar-md" } })
 
             <div class="member-info">
                 <span class="member-name">@member.User.FullName@(isMe ? " (you)" : "")</span>

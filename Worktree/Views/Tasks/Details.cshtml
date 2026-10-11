@@ -53,7 +53,7 @@
                 var isMine = comment.CreatedById == (string)ViewBag.CurrentUserId;
 
                 <div class="member-row">
-                    <span class="avatar avatar-md avatar-c@(comment.CreatedById.Sum(ch => (int)ch) % 6)">@comment.CreatedBy.Initials</span>
+                    @await Html.PartialAsync("_Avatar", comment.CreatedBy, new ViewDataDictionary(ViewData) { { "Size", "avatar-md" } })
 
                     <div class="member-info">
                         <span class="member-name">@comment.CreatedBy.FullName</span>
@@ -98,7 +98,7 @@
                 <div class="label-row-actions">
                     @if (Model.Assignee != null)
                     {
-                        <span class="avatar avatar-sm avatar-c@(Model.Assignee.Id.Sum(ch => (int)ch) % 6)">@Model.Assignee.Initials</span>
+                        @await Html.PartialAsync("_Avatar", Model.Assignee, new ViewDataDictionary(ViewData) { { "Size", "avatar-sm" } })
                         @Model.Assignee.FullName
                     }
                     else
@@ -110,7 +110,7 @@
             <div class="label-row">
                 <span class="label-usage">Reporter</span>
                 <div class="label-row-actions">
-                    <span class="avatar avatar-sm avatar-c@(Model.CreatedBy.Id.Sum(ch => (int)ch) % 6)">@Model.CreatedBy.Initials</span>
+                    @await Html.PartialAsync("_Avatar", Model.CreatedBy, new ViewDataDictionary(ViewData) { { "Size", "avatar-sm" } })
                     @Model.CreatedBy.FullName
                 </div>
             </div>

@@ -16,6 +16,7 @@ namespace Worktree.Data
         {
             return _context.Tasks
                 .Include(t => t.Assignee)
+                .ThenInclude(u => u!.Profile)
                 .Include(t => t.TaskLabels)
                 .ThenInclude(tl => tl.Label)
                 .Where(t => t.ProjectId == projectId)
@@ -29,11 +30,14 @@ namespace Worktree.Data
             return await _context.Tasks
                 .Include(t => t.Project)
                 .Include(t => t.Assignee)
+                .ThenInclude(u => u!.Profile)
                 .Include(t => t.CreatedBy)
+                .ThenInclude(u => u.Profile)
                 .Include(t => t.TaskLabels)
                 .ThenInclude(tl => tl.Label)
                 .Include(t => t.Comments)
                 .ThenInclude(c => c.CreatedBy)
+                .ThenInclude(u => u.Profile)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

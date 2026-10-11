@@ -54,7 +54,7 @@ else
                 <span class="pill status-@item.Status.CssName()">@item.Status.GetDisplayName()</span>
                 @if (item.Assignee != null)
                 {
-                    <span class="avatar avatar-sm avatar-c@(item.Assignee.Id.Sum(ch => (int)ch) % 6)" title="@item.Assignee.FullName">@item.Assignee.Initials</span>
+                    @await Html.PartialAsync("_Avatar", item.Assignee, new ViewDataDictionary(ViewData) { { "Size", "avatar-sm" } })
                 }
                 <small class="task-row-due @(overdue ? "text-danger" : "text-muted")">
                     @(item.DueDate.HasValue ? (overdue ? "Overdue · " : "") + item.DueDate.Value.ToString("dd/MM") : "—")

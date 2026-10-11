@@ -198,7 +198,7 @@ else
                     <div class="avatar-stack">
                         @foreach (var member in members.Take(4))
                         {
-                            <span class="avatar avatar-c@(member.UserId.Sum(ch => (int)ch) % 6)" title="@member.User.FullName">@member.User.Initials</span>
+                            <partial name="_Avatar" model="member.User" />
                         }
                     </div>
                     <span class="member-count">@members.Count @(members.Count == 1 ? "member" : "members")</span>
