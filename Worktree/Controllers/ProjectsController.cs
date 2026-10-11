@@ -224,7 +224,7 @@ namespace Worktree.Controllers
                     }
                 }
 
-                return RedirectToAction(nameof(Details), new { id = model.Id });
+                return RedirectToAction(nameof(Index));
             }
 
             return View(model);
