@@ -1841,3 +1841,38 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.auth-card.auth-wide {
+    max-width: 460px;
+}
+
+.auth-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.field-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.auth-success {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background-color: #dcfce7;
+    font-size: 14px;
+    color: #166534;
+}
+
+.auth-links.auth-center {
+    justify-content: center;
+}
+
+@media (max-width: 420px) {
+    .auth-row {
+        grid-template-columns: 1fr;
+    }
+}

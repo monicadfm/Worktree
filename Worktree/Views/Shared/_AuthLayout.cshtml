@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="auth-page">
-    <main class="auth-card">
+    <main class="auth-card @(ViewData["AuthWide"] is true ? "auth-wide" : "")">
         <a class="auth-brand" asp-controller="Home" asp-action="Index">
             <img src="~/img/logo-light.png" alt="" />
             Worktree

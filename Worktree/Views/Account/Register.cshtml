@@ -1,51 +1,56 @@
 ﻿@model Worktree.Models.RegisterNewUserViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create account";
+    Layout = "_AuthLayout";
+    ViewData["AuthWide"] = true;
 }
 
-<h1>Register</h1>
+<a class="auth-back" asp-controller="Home" asp-action="Index">&larr; Back to home</a>
 
-<div class="row">
-    <div class="col-md-4 offset-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<h1>Create your account</h1>
+<p class="auth-sub">Start your first board in under a minute.</p>
 
-            <div class="mb-3">
-                <label asp-for="FirstName" class="form-label"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-warning"></span>
-            </div>
+<form method="post" class="auth-form">
+    <div asp-validation-summary="ModelOnly" class="auth-error"></div>
 
-            <div class="mb-3">
-                <label asp-for="LastName" class="form-label"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-warning"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Username" class="form-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-warning"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-warning"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Confirm" class="form-label"></label>
-                <input asp-for="Confirm" class="form-control" />
-                <span asp-validation-for="Confirm" class="text-warning"></span>
-            </div>
-
-            <div class="mb-3">
-                <input type="submit" value="Register New User" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="auth-row">
+        <div>
+            <label asp-for="FirstName" class="form-label">First name</label>
+            <input asp-for="FirstName" class="form-control" autocomplete="given-name" autofocus />
+            <span asp-validation-for="FirstName" class="field-error"></span>
+        </div>
+        <div>
+            <label asp-for="LastName" class="form-label">Last name</label>
+            <input asp-for="LastName" class="form-control" autocomplete="family-name" />
+            <span asp-validation-for="LastName" class="field-error"></span>
+        </div>
     </div>
-</div>
+
+    <div>
+        <label asp-for="Username" class="form-label">Email</label>
+        <input asp-for="Username" class="form-control" autocomplete="email" />
+        <span asp-validation-for="Username" class="field-error"></span>
+    </div>
+
+    <div>
+        <label asp-for="Password" class="form-label">Password</label>
+        <input asp-for="Password" class="form-control" autocomplete="new-password" />
+        <span class="field-hint">At least 6 characters.</span>
+        <span asp-validation-for="Password" class="field-error"></span>
+    </div>
+
+    <div>
+        <label asp-for="Confirm" class="form-label">Confirm password</label>
+        <input asp-for="Confirm" class="form-control" autocomplete="new-password" />
+        <span asp-validation-for="Confirm" class="field-error"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create account</button>
+
+    <div class="auth-links auth-center">
+        <span>Already have an account? <a asp-action="Login">Sign in</a></span>
+    </div>
+</form>
 
 @section Scripts {
     @{
