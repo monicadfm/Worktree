@@ -395,10 +395,39 @@ namespace Worktree.Controllers
                     new { token = myToken },
                     protocol: HttpContext.Request.Scheme);
 
-                Response response = _mailHelper.SendEmail(model.Email, "Worktree Password Reset",
-                    $"<h1>Worktree Password Reset</h1>" +
-                    $"To reset the password click in this link:<br/><br/>" +
-                    $"<a href=\"{link}\">Reset Password</a>");
+                var firstName = System.Net.WebUtility.HtmlEncode(user.FirstName);
+
+                var body = $"""
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+                      <tr>
+                        <td align="center">
+                          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background-color:#ffffff;border:1px solid #e2e5ea;border-radius:12px;">
+                            <tr>
+                              <td style="padding:32px;">
+                                <p style="margin:0 0 24px;font-size:20px;font-weight:bold;color:#15171c;">Worktree</p>
+                                <h1 style="margin:0 0 12px;font-size:22px;color:#15171c;">Reset your password</h1>
+                                <p style="margin:0 0 16px;font-size:15px;line-height:1.5;color:#343842;">Hi {firstName},</p>
+                                <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#343842;">We got a request to reset the password for your Worktree account. Click the button below to choose a new one.</p>
+                                <table role="presentation" cellpadding="0" cellspacing="0">
+                                  <tr>
+                                    <td style="background-color:#2457d6;border-radius:8px;">
+                                      <a href="{link}" style="display:inline-block;padding:12px 24px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;">Reset password</a>
+                                    </td>
+                                  </tr>
+                                </table>
+                                <p style="margin:24px 0 8px;font-size:13px;line-height:1.5;color:#5b616e;">If the button doesn't work, copy this link into your browser:</p>
+                                <p style="margin:0 0 24px;font-size:13px;line-height:1.5;word-break:break-all;"><a href="{link}" style="color:#2457d6;">{link}</a></p>
+                                <p style="margin:0;padding-top:16px;border-top:1px solid #eef0f3;font-size:13px;line-height:1.5;color:#5b616e;">If you didn't ask to reset your password, you can ignore this email. Your password won't change.</p>
+                              </td>
+                            </tr>
+                          </table>
+                          <p style="margin:16px 0 0;font-size:12px;color:#5b616e;">&copy; 2026 Worktree</p>
+                        </td>
+                      </tr>
+                    </table>
+                    """;
+
+                Response response = _mailHelper.SendEmail(model.Email, "Reset your Worktree password", body);
 
                 if (response.IsSuccess)
                 { 
