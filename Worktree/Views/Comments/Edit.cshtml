@@ -4,28 +4,36 @@
     ViewData["Title"] = "Edit Comment";
 }
 
-<h1><span class="badge bg-secondary align-middle">@ViewBag.TaskCode</span> Edit Comment</h1>
-<hr />
+<a asp-controller="Tasks" asp-action="Details" asp-route-id="@Model.TaskItemId" class="back-link">&larr; Back to task</a>
 
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="TaskItemId" />
-
-            <div class="mb-3">
-                <label asp-for="Body" class="form-label"></label>
-                <textarea asp-for="Body" class="form-control" rows="4"></textarea>
-                <span asp-validation-for="Body" class="text-warning"></span>
-            </div>
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a asp-controller="Tasks" asp-action="Details" asp-route-id="@Model.TaskItemId" class="btn btn-success">Back to Task</a>
-            </div>
-        </form>
+<div class="card form-card">
+    <div class="form-card-head">
+        <div>
+            <h1>Edit comment</h1>
+            <p>On <span class="key">@ViewBag.TaskCode</span></p>
+        </div>
     </div>
+
+    <form asp-action="Edit" class="form-stack">
+        <div asp-validation-summary="ModelOnly" class="auth-error"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="TaskItemId" />
+
+        <div>
+            <div class="field-row">
+                <label asp-for="Body" class="form-label"></label>
+                <span class="field-hint m-0"><span id="body-count">@Model.Body.Length</span>/2000</span>
+            </div>
+            <textarea asp-for="Body" class="form-control" rows="4" maxlength="2000"
+                      oninput="document.getElementById('body-count').textContent = this.value.length"></textarea>
+            <span asp-validation-for="Body" class="field-error"></span>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a asp-controller="Tasks" asp-action="Details" asp-route-id="@Model.TaskItemId" class="btn btn-line">Cancel</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
