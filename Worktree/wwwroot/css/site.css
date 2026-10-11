@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --page: #f4f5f7;
     --card: #ffffff;
     --column: #ebedf1;
@@ -2046,4 +2046,43 @@ body {
 
 .error-page p {
     margin-bottom: 24px;
+}
+
+.avatar-lg {
+    width: 72px;
+    height: 72px;
+    font-size: 26px;
+}
+
+.avatar-upload {
+    position: relative;
+    display: inline-block;
+    padding: 0;
+    border: 0;
+    background: none;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.avatar-upload-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background-color: rgba(21, 23, 28, 0.8);
+    font-size: 36px;
+    font-weight: 400;
+    color: #ffffff;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.avatar-upload:hover .avatar-upload-overlay {
+    opacity: 1;
+}
+
+.card-menu label.dropdown-item {
+    cursor: pointer;
 }

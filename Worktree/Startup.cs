@@ -63,6 +63,7 @@ namespace Worktree
 
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IMailHelper, MailHelper>();
+            services.AddScoped<IImageHelper, ImageHelper>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IConverterHelper, ConverterHelper>();
             services.AddScoped<ITaskRepository, TaskRepository>();

@@ -30,6 +30,12 @@ namespace Worktree.Models
         [Display(Name = "Avatar URL")]
         public string? AvatarUrl { get; set; }
 
+        [ValidateNever]
+        [Display(Name = "Profile picture")]
+        public IFormFile? AvatarFile { get; set; }
+
+        public bool RemoveAvatar { get; set; }
+
         public AppTheme Theme { get; set; }
 
         [Display(Name = "Default Project")]

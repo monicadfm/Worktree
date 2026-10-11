@@ -14,12 +14,14 @@ namespace Worktree.Controllers
         private readonly IUserHelper _userHelper;
         private readonly IMailHelper _mailHelper;
         private readonly IProjectRepository _projectRepository;
+        private readonly IImageHelper _imageHelper;
 
-        public AccountController(IUserHelper userHelper, IMailHelper mailHelper, IProjectRepository projectRepository)
+        public AccountController(IUserHelper userHelper, IMailHelper mailHelper, IProjectRepository projectRepository, IImageHelper imageHelper)
         {
             _userHelper = userHelper;
             _mailHelper = mailHelper;
             _projectRepository = projectRepository;
+            _imageHelper = imageHelper;
         }
 
         public IActionResult Login()
@@ -275,8 +277,37 @@ namespace Worktree.Controllers
                 ModelState.AddModelError(nameof(model.DefaultProjectId), "You can only choose a project you're a member of.");
             }
 
+            if (model.AvatarUrl != null && model.AvatarUrl.StartsWith("/images/avatars/"))
+            {
+                ModelState.Remove(nameof(model.AvatarUrl));
+            }
+
+            if (model.AvatarFile != null)
+            {
+                var extension = Path.GetExtension(model.AvatarFile.FileName).ToLower();
+                var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+                if (!allowed.Contains(extension) || !model.AvatarFile.ContentType.StartsWith("image/"))
+                {
+                    ModelState.AddModelError(nameof(model.AvatarFile), "Choose a JPG, PNG or WEBP image.");
+                }
+                else if (model.AvatarFile.Length > 2 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(nameof(model.AvatarFile), "The picture can't be bigger than 2 MB.");
+                }
+            }
+
             if (ModelState.IsValid)
             {
+                if (model.AvatarFile != null)
+                {
+                    model.AvatarUrl = await _imageHelper.UploadImageAsync(model.AvatarFile, "avatars");
+                }
+                else if (model.RemoveAvatar)
+                {
+                    model.AvatarUrl = null;
+                }
+
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
 

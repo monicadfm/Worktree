@@ -8,26 +8,50 @@
 
 <div class="card form-card form-card-wide">
     <div class="form-card-head">
-        @if (!string.IsNullOrEmpty(Model.AvatarUrl))
-        {
-            <img src="@Model.AvatarUrl" alt="" class="avatar avatar-md" referrerpolicy="no-referrer" />
-        }
-        else
-        {
-            <span class="avatar avatar-md">@initials</span>
-        }
+        <div class="dropdown">
+            <button type="button" class="avatar-upload" data-bs-toggle="dropdown" aria-expanded="false"
+                    aria-label="Change picture" data-initials="@initials">
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <img src="@Model.AvatarUrl" alt="" id="avatar-preview" class="avatar avatar-lg" referrerpolicy="no-referrer" />
+                }
+                else
+                {
+                    <span id="avatar-preview" class="avatar avatar-lg">@initials</span>
+                }
+                <span class="avatar-upload-overlay" aria-hidden="true">+</span>
+            </button>
+            <ul class="dropdown-menu card-menu">
+                <li>
+                    <label for="AvatarFile" class="dropdown-item">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" /></svg>
+                        Upload picture
+                    </label>
+                </li>
+                <li id="avatar-remove-item" class="@(string.IsNullOrEmpty(Model.AvatarUrl) ? "d-none" : "")">
+                    <button type="button" id="avatar-remove" class="dropdown-item menu-danger">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M9 7V4h6v3" /></svg>
+                        Remove picture
+                    </button>
+                </li>
+            </ul>
+        </div>
         <div>
             <h1>@Model.FirstName @Model.LastName</h1>
             <p>@(string.IsNullOrEmpty(Model.JobTitle) ? "No job title yet" : Model.JobTitle) &middot; @this.User.Identity!.Name</p>
+            <span class="field-hint" id="avatar-file-name">Click your picture to upload or remove it. JPG, PNG or WEBP, up to 2 MB.</span>
         </div>
     </div>
 
-    <form method="post" class="form-stack">
+    <form method="post" enctype="multipart/form-data" class="form-stack">
         @if (ViewBag.UserMessage != null)
         {
             <div class="auth-success">@ViewBag.UserMessage</div>
         }
         <div asp-validation-summary="ModelOnly" class="auth-error"></div>
+        <input asp-for="AvatarFile" type="file" class="d-none" accept=".jpg,.jpeg,.png,.webp" />
+        <input type="hidden" asp-for="AvatarUrl" />
+        <span asp-validation-for="AvatarFile" class="field-error"></span>
 
         <div class="auth-row">
             <div>
@@ -58,12 +82,7 @@
             <span asp-validation-for="Bio" class="field-error"></span>
         </div>
 
-        <div>
-            <label asp-for="AvatarUrl" class="form-label">Avatar URL <span class="optional">(optional)</span></label>
-            <input asp-for="AvatarUrl" class="form-control" placeholder="https://..." />
-            <span class="field-hint">Leave empty to use your initials.</span>
-            <span asp-validation-for="AvatarUrl" class="field-error"></span>
-        </div>
+        <input asp-for="RemoveAvatar" type="checkbox" class="d-none" />
 
         <div class="auth-row">
             <div>

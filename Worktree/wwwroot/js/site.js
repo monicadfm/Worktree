@@ -31,3 +31,42 @@ if (picker && hex && nameInput && preview) {
 
     nameInput.addEventListener("input", updatePreview);
 }
+
+const avatarInput = document.getElementById("AvatarFile");
+const avatarRemove = document.getElementById("avatar-remove");
+
+const setAvatarPreview = (element) => {
+    element.id = "avatar-preview";
+    element.className = "avatar avatar-lg";
+    document.getElementById("avatar-preview").replaceWith(element);
+};
+
+if (avatarInput) {
+    avatarInput.addEventListener("change", () => {
+        const file = avatarInput.files[0];
+        if (!file) {
+            return;
+        }
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        setAvatarPreview(img);
+
+        document.getElementById("RemoveAvatar").checked = false;
+        document.getElementById("avatar-remove-item").classList.remove("d-none");
+        document.getElementById("avatar-file-name").textContent = file.name + " selected. Click Save profile to keep it.";
+    });
+}
+
+if (avatarRemove) {
+    avatarRemove.addEventListener("click", () => {
+        const initials = document.createElement("span");
+        initials.textContent = document.querySelector(".avatar-upload").dataset.initials;
+        setAvatarPreview(initials);
+
+        avatarInput.value = "";
+        document.getElementById("RemoveAvatar").checked = true;
+        document.getElementById("avatar-remove-item").classList.add("d-none");
+        document.getElementById("avatar-file-name").textContent = "Picture will be removed. Click Save profile to confirm.";
+    });
+}
